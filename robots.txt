@@ -1,0 +1,5 @@
+# Sistema interno da Contabilizare — não deve aparecer em buscadores.
+# Os dados de avaliação de desempenho são confidenciais (MAN RH 0001, item 12).
+
+User-agent: *
+Disallow: /

@@ -1,0 +1,20 @@
+# Cópias de segurança baixadas pelo sistema — contêm dados confidenciais
+# de avaliação e NUNCA devem subir para o repositório.
+*.json
+!vercel.json
+avaliacao-desempenho-*.json
+backups/
+
+# Vercel
+.vercel/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*~

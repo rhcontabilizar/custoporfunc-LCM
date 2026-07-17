@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Avaliação de Desempenho · Contabilizare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  /* Paleta da marca Contabilizare: branco, cinza claro, azul-marinho e dourado */
+  --bg:#F1F2F5; --sup:#FFFFFF; --sup2:#F7F8FA;
+  --tinta:#0D153E; --tinta2:#5C6178; --tinta3:#95989A;
+  --linha:#DCDFE6; --linha2:#EBEDF2;
+  --marinho:#0D153E; --marinho-esc:#070C26; --marinho-cl:#E7EAF3; --marinho-md:#2A3468;
+  --dourado:#C9A227; --dourado-esc:#8F7218; --vermelho:#A8352A; --cinza:#95989A;
+  --c1:#A8352A; --c2:#B4762A; --c3:#5B6C99; --c4:#0D153E; --c5:#9A7B14;
+  --r:10px; --sombra:0 1px 2px rgba(13,21,62,.06), 0 8px 24px rgba(13,21,62,.06);
+  --disp:'Bricolage Grotesque', system-ui, sans-serif;
+  --corpo:'Inter', system-ui, sans-serif;
+  --mono:'IBM Plex Mono', ui-monospace, monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tinta);font-family:var(--corpo);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:var(--marinho)}
+:focus-visible{outline:2px solid var(--marinho);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- Login ---------- */
+#login{min-height:100vh;display:grid;place-items:center;padding:24px;
+  background:radial-gradient(125% 95% at 18% 0%, #1B2559 0%, #0D153E 55%, #060A22 100%)}
+#login::after{content:'';position:fixed;left:0;right:0;bottom:0;height:4px;
+  background:linear-gradient(90deg,var(--dourado) 0%, #E3C766 50%, var(--dourado) 100%)}
+.cardLogin{width:100%;max-width:400px;background:var(--sup);border-radius:16px;padding:34px;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.logoLogin{width:230px;height:auto;display:block;margin-bottom:22px}
+.logoTopo{height:26px;width:auto;display:block}
+.cardLogin h1{font-family:var(--disp);font-weight:800;font-size:29px;line-height:1.1;margin:0 0 4px;letter-spacing:-.02em;color:var(--marinho)}
+.cardLogin h1 span{color:var(--dourado)}
+.cardLogin p.sub{color:var(--tinta2);font-size:13px;margin-bottom:22px}
+label{display:block;font-size:12px;font-weight:600;color:var(--tinta2);margin:12px 0 5px;letter-spacing:.02em}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--linha);border-radius:8px;background:var(--sup);transition:border-color .12s}
+input:focus,select:focus,textarea:focus{border-color:var(--marinho);outline:none;box-shadow:0 0 0 3px var(--marinho-cl)}
+textarea{resize:vertical;min-height:76px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:var(--marinho);color:#fff;border-radius:8px;padding:10px 16px;font-weight:600;font-size:13px;transition:background .12s}
+.btn:hover{background:var(--marinho-esc)}
+.btn.full{width:100%;padding:12px}
+.btn.sec{background:var(--sup);color:var(--tinta);border:1px solid var(--linha)}
+.btn.sec:hover{background:var(--sup2)}
+.btn.perigo{background:var(--vermelho)}
+.btn.mini{padding:6px 10px;font-size:12px}
+.erro{background:#FBEDEC;color:var(--vermelho);border:1px solid #F0CFCC;border-radius:8px;padding:9px 11px;font-size:12.5px;margin-top:14px;font-weight:500}
+
+/* ---------- App ---------- */
+#app{display:none}
+header.topo{background:var(--marinho);color:#fff;position:sticky;top:0;z-index:40;
+  box-shadow:inset 0 -3px 0 var(--dourado)}
+.topo .linha1{display:flex;align-items:center;gap:16px;padding:11px 22px;max-width:1500px;margin:0 auto}
+.topo .divisor{width:1px;height:20px;background:rgba(255,255,255,.22)}
+.topo .cicloTag{font-family:var(--mono);font-size:11.5px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);padding:3px 9px;border-radius:99px;letter-spacing:.04em}
+.topo .dir{margin-left:auto;display:flex;align-items:center;gap:12px}
+.nuvem{font-size:11.5px;font-family:var(--mono);opacity:.85;display:flex;align-items:center;gap:6px}
+.pt{width:7px;height:7px;border-radius:99px;background:var(--dourado)}
+.pt.off{background:#7F8496}.pt.erro{background:#E07A6F}
+.quem{text-align:right;line-height:1.25}
+.quem b{font-size:12.5px;font-weight:600;display:block}
+.quem span{font-size:11px;opacity:.7}
+.sair{color:#fff;opacity:.8;font-size:12px;border:1px solid rgba(255,255,255,.25);border-radius:7px;padding:5px 10px}
+.sair:hover{opacity:1;background:rgba(255,255,255,.1)}
+
+nav.abas{display:flex;gap:2px;padding:0 22px;max-width:1500px;margin:0 auto;overflow-x:auto}
+nav.abas button{color:rgba(255,255,255,.62);padding:9px 14px 11px;font-size:13px;font-weight:600;border-bottom:2.5px solid transparent;white-space:nowrap}
+nav.abas button:hover{color:#fff}
+nav.abas button.on{color:#fff;border-bottom-color:var(--dourado)}
+
+.subabas{background:var(--sup);border-bottom:1px solid var(--linha);position:sticky;top:83px;z-index:30}
+.subabas .in{display:flex;gap:4px;padding:8px 22px;max-width:1500px;margin:0 auto;overflow-x:auto}
+.subabas button{padding:6px 12px;border-radius:99px;font-size:12.5px;font-weight:600;color:var(--tinta2);white-space:nowrap}
+.subabas button:hover{background:var(--sup2)}
+.subabas button.on{background:var(--marinho-cl);color:var(--marinho-esc)}
+
+main{max-width:1500px;margin:0 auto;padding:22px}
+.tituloTela{font-family:var(--disp);font-weight:800;font-size:23px;letter-spacing:-.02em;margin-bottom:2px;color:var(--marinho)}
+.subtitulo{color:var(--tinta2);font-size:13px;margin-bottom:18px}
+.painel{background:var(--sup);border:1px solid var(--linha);border-radius:var(--r);padding:18px;box-shadow:var(--sombra);margin-bottom:16px}
+.painel h3{font-family:var(--disp);font-weight:700;font-size:15px;margin-bottom:2px;letter-spacing:-.01em;color:var(--marinho)}
+.painel .dica{color:var(--tinta3);font-size:12px;margin-bottom:14px}
+.grade{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)} .g5{grid-template-columns:repeat(5,1fr)}
+@media(max-width:1100px){.g4,.g5{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr}}
+@media(max-width:720px){.g2,.g4,.g5{grid-template-columns:1fr}}
+
+.kpi{background:var(--sup);border:1px solid var(--linha);border-radius:var(--r);padding:15px 16px}
+.kpi .rot{font-size:11px;font-weight:600;color:var(--tinta3);text-transform:uppercase;letter-spacing:.07em}
+.kpi .val{font-family:var(--mono);font-weight:600;font-size:27px;letter-spacing:-.03em;margin-top:6px;line-height:1;color:var(--marinho)}
+.kpi .pe{font-size:11.5px;color:var(--tinta2);margin-top:5px}
+
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11px;font-weight:700;color:var(--tinta3);text-transform:uppercase;letter-spacing:.06em;padding:8px 10px;border-bottom:1px solid var(--linha)}
+td{padding:9px 10px;border-bottom:1px solid var(--linha2);font-size:13px;vertical-align:middle}
+tbody tr:hover{background:var(--sup2)}
+.num{font-family:var(--mono);text-align:right}
+.vazio{text-align:center;color:var(--tinta3);padding:34px 10px;font-size:13px}
+
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;letter-spacing:.02em}
+.t1{background:#FBEDEC;color:var(--c1)} .t2{background:#FAF1E4;color:var(--c2)}
+.t3{background:#EDEFF7;color:var(--c3)} .t4{background:var(--marinho-cl);color:var(--c4)}
+.t5{background:#FAF3DC;color:var(--c5)} .tn{background:var(--sup2);color:var(--tinta3)}
+.tend{font-family:var(--mono);font-size:12px;font-weight:600}
+.sobe{color:var(--dourado-esc)} .desce{color:var(--vermelho)} .igual{color:var(--tinta3)}
+
+/* Régua de proficiência — elemento-assinatura */
+.regua{position:relative;height:34px;border-radius:8px;overflow:hidden;display:flex;border:1px solid var(--linha)}
+.regua .z{flex:1;display:grid;place-items:center;font-size:9.5px;font-weight:700;color:#fff;letter-spacing:.05em;text-transform:uppercase;opacity:.92}
+.regua .z:nth-child(1){background:var(--c1);flex:0 0 19.8%}
+.regua .z:nth-child(2){background:var(--c2);flex:0 0 25%}
+.regua .z:nth-child(3){background:var(--c3);flex:0 0 20%}
+.regua .z:nth-child(4){background:var(--c4);flex:0 0 17.5%}
+.regua .z:nth-child(5){background:var(--c5);flex:1}
+.marcador{position:absolute;top:-3px;bottom:-3px;width:3px;background:var(--tinta);box-shadow:0 0 0 2px #fff;border-radius:2px;transition:left .3s}
+.reguaLeg{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--tinta3);margin-top:4px}
+
+.notas{display:flex;gap:5px}
+.notas button{width:34px;height:34px;border-radius:7px;border:1px solid var(--linha);background:var(--sup);font-family:var(--mono);font-weight:600;font-size:13px;color:var(--tinta2);transition:all .1s}
+.notas button:hover{border-color:var(--marinho);color:var(--marinho)}
+.notas button.on{background:var(--marinho);border-color:var(--marinho);color:#fff}
+.notas button.on.n1{background:var(--c1);border-color:var(--c1)}
+.notas button.on.n2{background:var(--c2);border-color:var(--c2)}
+.linhaComp{display:grid;grid-template-columns:30px 1fr 200px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--linha2)}
+.linhaComp .n{font-family:var(--mono);font-size:12px;color:var(--tinta3);font-weight:600}
+.linhaComp .txt{font-size:13.2px}
+.evid{margin-top:6px;font-size:12.5px;padding:7px 9px}
+@media(max-width:800px){.linhaComp{grid-template-columns:26px 1fr;}.linhaComp .notas{grid-column:2}}
+
+.barra{height:7px;background:var(--linha2);border-radius:99px;overflow:hidden}
+.barra i{display:block;height:100%;background:var(--marinho);border-radius:99px}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--sup2);border:1px solid var(--linha);border-radius:99px;padding:3px 9px;font-size:11.5px;font-weight:600;color:var(--tinta2)}
+.pilha{display:flex;flex-direction:column;gap:3px}
+.pilha small{color:var(--tinta3);font-size:11.5px}
+.barraAcoes{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.barraAcoes .cresce{flex:1}
+.aviso{background:#FBF4E0;border:1px solid #EBDCA8;color:#6E5511;border-radius:8px;padding:10px 12px;font-size:12.5px;margin-bottom:14px;
+  border-left:3px solid var(--dourado)}
+.ok{background:var(--marinho-cl);border-color:#C7CDE2;color:var(--marinho)}
+
+/* Modal */
+.fundo{position:fixed;inset:0;background:rgba(7,12,38,.55);z-index:60;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto}
+.fundo.on{display:flex}
+.modal{background:var(--sup);border-radius:14px;width:100%;max-width:640px;box-shadow:0 40px 90px rgba(0,0,0,.3)}
+.modal .cab{padding:18px 20px;border-bottom:1px solid var(--linha);display:flex;align-items:center}
+.modal .cab h3{font-family:var(--disp);font-weight:700;font-size:17px;color:var(--marinho)}
+.modal .cab button{margin-left:auto;color:var(--tinta3);font-size:20px;line-height:1}
+.modal .corpo{padding:20px}
+.modal .rod{padding:14px 20px;border-top:1px solid var(--linha);display:flex;gap:8px;justify-content:flex-end}
+
+/* Impressão */
+#imp{display:none}
+@media print{
+  body{background:#fff}
+  #login,#app,.fundo{display:none!important}
+  #imp{display:block!important;padding:0}
+  .quebra{page-break-after:always}
+  table{page-break-inside:auto} tr{page-break-inside:avoid}
+  @page{margin:14mm}
+}
+#imp .doc{max-width:190mm;margin:0 auto;color:#000;font-size:11px}
+#imp .cabDoc{border-bottom:2px solid var(--marinho);padding-bottom:8px;margin-bottom:14px;display:flex;align-items:flex-end;
+  box-shadow:0 2px 0 var(--dourado)}
+#imp .cabDoc img{height:11mm;width:auto;display:block;margin-bottom:4px}
+#imp .cabDoc .m{font-size:9px;color:#444;letter-spacing:.02em}
+#imp .cabDoc .t{font-family:var(--disp);font-weight:700;font-size:13px;margin-top:2px}
+#imp .cabDoc .d{margin-left:auto;text-align:right;font-size:9.5px;color:#555;font-family:var(--mono)}
+#imp h4{font-family:var(--disp);font-size:12px;margin:14px 0 5px;padding-bottom:3px;border-bottom:1px solid #ccc;text-transform:uppercase;letter-spacing:.05em;color:#0D153E}
+#imp table{font-size:10px} #imp th,#imp td{padding:4px 6px;border-bottom:1px solid #ddd}
+#imp .ass{display:flex;gap:26px;margin-top:34px}
+#imp .ass div{flex:1;border-top:1px solid #000;padding-top:4px;font-size:9.5px;text-align:center}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="login">
+  <div class="cardLogin">
+    <img class="logoLogin" id="logoLogin" alt="Contabilizare — sua contabilidade em boas mãos">
+    <h1>Avaliação<br>de <span>Desempenho</span></h1>
+    <p class="sub">Gestão por competências · ciclos trimestrais</p>
+    <label for="lgUser">Usuário</label>
+    <input id="lgUser" autocomplete="username" placeholder="seu.usuario">
+    <label for="lgSenha">Senha</label>
+    <input id="lgSenha" type="password" autocomplete="current-password" placeholder="••••••••">
+    <div style="height:18px"></div>
+    <button class="btn full" onclick="entrar()">Entrar</button>
+    <div id="lgErro"></div>
+    <p style="margin-top:18px;font-size:11.5px;color:var(--tinta3);line-height:1.5">
+      Primeiro acesso do RH: <b style="font-family:var(--mono)">eloisa</b> / <b style="font-family:var(--mono)">rh2026</b>.
+      Troque a senha e cadastre os demais em Configurações.
+    </p>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app">
+  <header class="topo">
+    <div class="linha1">
+      <img class="logoTopo" id="logoTopo" alt="Contabilizare">
+      <div class="divisor"></div>
+      <div style="font-size:13px;font-weight:600">Avaliação de Desempenho</div>
+      <div class="cicloTag" id="tagCiclo">—</div>
+      <div class="dir">
+        <div class="nuvem" id="nuvemSt"><i class="pt off"></i><span>local</span></div>
+        <div class="quem"><b id="quemNome">—</b><span id="quemCargo">—</span></div>
+        <button class="sair" onclick="sair()">Sair</button>
+      </div>
+    </div>
+    <nav class="abas" id="navAbas"></nav>
+  </header>
+  <div class="subabas"><div class="in" id="navSub"></div></div>
+  <main id="tela"></main>
+</div>
+
+<div class="fundo" id="fundo"><div class="modal" id="modal"></div></div>
+<div id="imp"></div>
+
+<script>
+/* ======================================================================
+   0. IDENTIDADE VISUAL — logo Contabilizare embutida no arquivo
+   ====================================================================== */
+var LOGO_COMPLETA='data:image/png;base64,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';
+var LOGO_BRANCA='data:image/png;base64,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';
+
+/* ======================================================================
+   1. MODELO DE COMPETÊNCIAS  (Formulário + POL RH 0001)
+   ====================================================================== */
+var DIM = {
+  org:{nome:'Competências Organizacionais', curto:'Organizacional', peso:.25, itens:[
+    'Demonstra compromisso com a missão, visão, valores e objetivos da Contabilizare.',
+    'Age com ética, integridade e responsabilidade em suas atividades.',
+    'Cumpre prazos e compromissos assumidos.',
+    'Atende clientes internos e externos com cordialidade e foco na solução.',
+    'Trabalha de forma colaborativa com a equipe.',
+    'Comunica-se de maneira clara, objetiva e respeitosa.',
+    'Organiza suas atividades e prioridades de forma eficiente.',
+    'Adapta-se às mudanças de processos e rotinas.',
+    'Utiliza adequadamente os recursos disponibilizados pela empresa.',
+    'Contribui para um ambiente de trabalho saudável e colaborativo.']},
+  tec:{nome:'Competências Técnicas', curto:'Técnica', peso:.35, itens:[
+    'Executa suas atividades com domínio técnico.',
+    'Aplica corretamente normas, procedimentos e políticas internas.',
+    'Analisa informações antes de tomar decisões.',
+    'Resolve problemas com eficiência.',
+    'Entrega atividades com qualidade e confiabilidade.',
+    'Utiliza corretamente os sistemas e ferramentas de trabalho.',
+    'Busca atualização e aprimoramento técnico constante.',
+    'Executa suas atividades com autonomia compatível com a função.',
+    'Gerencia adequadamente sua produtividade e volume de trabalho.',
+    'Entrega resultados dentro dos padrões estabelecidos pela empresa.']},
+  comp:{nome:'Competências Comportamentais', curto:'Comportamental', peso:.20, itens:[
+    'Demonstra iniciativa diante das demandas do trabalho.',
+    'Propõe melhorias para processos e atividades.',
+    'Mantém equilíbrio emocional diante de situações de pressão.',
+    'Relaciona-se de forma respeitosa com colegas, gestores e clientes.',
+    'Recebe feedback de forma positiva e demonstra interesse em evoluir.',
+    'Busca continuamente seu desenvolvimento profissional.',
+    'Adapta-se com facilidade às mudanças.',
+    'Assume responsabilidade pelos próprios resultados.',
+    'Contribui para a resolução de conflitos de forma madura.',
+    'Demonstra comprometimento com os resultados da equipe e da empresa.']},
+  qual:{nome:'Competências da Qualidade', curto:'Qualidade', peso:.20, itens:[
+    'Cumpre os procedimentos e padrões estabelecidos pela empresa.',
+    'Executa suas atividades com atenção aos detalhes.',
+    'Entrega informações corretas e confiáveis.',
+    'Reduz erros e retrabalho em suas atividades.',
+    'Cumpre os prazos estabelecidos.',
+    'Mantém registros e documentos organizados.',
+    'Busca continuamente melhorar seus processos de trabalho.',
+    'Identifica riscos e atua preventivamente para evitá-los.',
+    'Contribui para a melhoria contínua dos processos.',
+    'Busca excelência na execução de suas atividades.']}
+};
+var DIMS = Object.keys(DIM);
+var ESCALA = [
+  {n:1, nome:'Insuficiente',       desc:'Não atende às expectativas da função e necessita intervenção imediata.'},
+  {n:2, nome:'Em Desenvolvimento', desc:'Demonstra a competência parcialmente; necessita acompanhamento.'},
+  {n:3, nome:'Adequado',           desc:'Atende às expectativas da função.'},
+  {n:4, nome:'Avançado',           desc:'Supera frequentemente as expectativas.'},
+  {n:5, nome:'Referência',         desc:'É exemplo para a equipe e compartilha boas práticas.'}
+];
+var CLASSES = [
+  {min:1.00, max:1.99, nome:'Crítico',            cls:'t1', cor:'#A8352A', i:1},
+  {min:2.00, max:2.99, nome:'Em Desenvolvimento', cls:'t2', cor:'#B4762A', i:2},
+  {min:3.00, max:3.79, nome:'Adequado',           cls:'t3', cor:'#5B6C99', i:3},
+  {min:3.80, max:4.49, nome:'Alto Desempenho',    cls:'t4', cor:'#0D153E', i:4},
+  {min:4.50, max:5.00, nome:'Excelência',         cls:'t5', cor:'#9A7B14', i:5}
+];
+
+/* ======================================================================
+   2. ESTRUTURA ORGANIZACIONAL E ACESSOS
+   ====================================================================== */
+function seed(){
+  const u = (id,nome,login,senha,perfil,cargo,setor,gestorId,escopo)=>
+    ({id,nome,login,senha,perfil,cargo,setor,gestorId,escopo:escopo||[],ativo:true,admissao:'',vaga:false});
+  return {
+    versao:1, carimbo:Date.now(),
+    config:{ano:new Date().getFullYear(), ciclo:trimestreAtual(), empresa:'Contabilizare Contadores Associados',
+            nuvem:{url:'', chave:'', tabela:'avaliacao_desempenho', ligada:false}},
+    usuarios:[
+      u(1,'CEO','ceo','ceo2026','ceo','CEO','Diretoria',null,[]),
+      u(2,'Willian','willian','ger2026','gestor','Gestor','Diretoria',1,['Contábil','Fiscal','Pessoal']),
+      u(3,'Wagner','wagner','ger2026','gestor','Gestor','Diretoria',1,['Recepção','Zeladoria','Office Boy']),
+      u(4,'Vinicius','vinicius','ger2026','gestor','Gestor','Diretoria',1,['RH','Financeiro','Paralegal']),
+      u(5,'Midian','midian','coord2026','coordenador','Coordenadora Fiscal','Fiscal',2,[]),
+      u(6,'Ytalo','ytalo','coord2026','coordenador','Coordenador Contábil','Contábil',2,[]),
+      u(7,'Hudson','hudson','coord2026','coordenador','Coordenador Pessoal','Pessoal',2,[]),
+      u(8,'Jenifer','jenifer','','colaborador','Recepcionista','Recepção',3,[]),
+      u(9,'Mateus','mateus','','colaborador','Office Boy','Office Boy',3,[]),
+      u(10,'Maria Lucia','maria.lucia','','colaborador','Zeladora','Zeladoria',3,[]),
+      u(11,'Eloisa','eloisa','rh2026','rh','Supervisora de RH','RH',4,[]),
+      u(12,'Jessica','jessica','','colaborador','Financeiro','Financeiro',4,[]),
+      Object.assign(u(13,'Paralegal (vaga em aberto)','','','colaborador','Paralegal','Paralegal',4,[]),{ativo:false,vaga:true}),
+      u(14,'Neirieli','neirieli','','colaborador','Supervisora Fiscal','Fiscal',5,[]),
+      u(15,'Suelen','suelen','','colaborador','Auxiliar Fiscal','Fiscal',5,[]),
+      u(16,'Raissa','raissa','','colaborador','Auxiliar Fiscal','Fiscal',5,[]),
+      u(17,'Leticia','leticia','','colaborador','Auxiliar Fiscal','Fiscal',5,[]),
+      u(18,'Diego','diego','','colaborador','Analista Contábil','Contábil',6,[]),
+      u(19,'Victor','victor','','colaborador','Auxiliar Contábil','Contábil',6,[]),
+      u(20,'Eduardo','eduardo','','colaborador','Auxiliar Contábil','Contábil',6,[]),
+      u(21,'Yesa','yesa','','colaborador','Analista de Pessoal','Pessoal',7,[]),
+      u(22,'Mariana','mariana','','colaborador','Analista de Pessoal','Pessoal',7,[])
+    ],
+    avaliacoes:[], pdis:[], seqUsuario:22, seqAval:0, seqPdi:0
+  };
+}
+function trimestreAtual(){ return Math.floor(new Date().getMonth()/3)+1; }
+
+/* --- Regras de acesso (POL/POP/MAN + diretrizes da Contabilizare) --- */
+function podeAvaliar(u,c){ return c.gestorId===u.id && c.ativo && !c.vaga; }
+function verTudo(u){ return u.perfil==='rh' || u.perfil==='ceo'; }
+function podeVer(u,c){
+  if(verTudo(u)) return true;
+  if(c.id===u.id) return true;
+  if(u.perfil==='gestor')      return c.gestorId===u.id || (u.escopo||[]).includes(c.setor);
+  if(u.perfil==='coordenador') return c.gestorId===u.id;
+  return false;
+}
+function visiveis(u){ return db.usuarios.filter(c=>c.id!==u.id && podeVer(u,c)); }
+function meusAvaliados(u){ return db.usuarios.filter(c=>podeAvaliar(u,c)); }
+function pessoa(id){ return db.usuarios.find(x=>x.id===id) || {nome:'—',cargo:'—',setor:'—'}; }
+
+/* ======================================================================
+   3. CÁLCULOS AUTOMÁTICOS  (Anexo I do Formulário + POP item 8)
+   ====================================================================== */
+function mediaDim(a,d){ const n=(a.notas&&a.notas[d])||[]; const v=n.filter(x=>x>0);
+  return v.length===10 ? v.reduce((s,x)=>s+x,0)/10 : null; }
+function pontosDim(a,d){ const n=(a.notas&&a.notas[d])||[]; return n.reduce((s,x)=>s+(x||0),0); }
+function completa(a){ return DIMS.every(d=>mediaDim(a,d)!==null); }
+function preenchidas(a){ return DIMS.reduce((s,d)=>s+((a.notas&&a.notas[d])||[]).filter(x=>x>0).length,0); }
+function notaFinal(a){ if(!completa(a)) return null;
+  return DIMS.reduce((s,d)=>s+mediaDim(a,d)*DIM[d].peso,0); }
+function pontuacao(a){ return DIMS.reduce((s,d)=>s+pontosDim(a,d),0); }
+function aproveitamento(a){ return pontuacao(a)/200*100; }
+function classificar(n){ if(n==null) return null;
+  return CLASSES.find(c=>n>=c.min && n<=c.max+0.0049) || CLASSES[CLASSES.length-1]; }
+function anterior(a){
+  const lista = db.avaliacoes.filter(x=>x.colaboradorId===a.colaboradorId && x.status!=='rascunho' && completa(x)
+    && (x.ano<a.ano || (x.ano===a.ano && x.ciclo<a.ciclo)));
+  lista.sort((p,q)=> (q.ano-p.ano) || (q.ciclo-p.ciclo));
+  return lista[0]||null;
+}
+function evolucao(a){
+  const ant=anterior(a); const at=notaFinal(a); if(!ant||at==null) return null;
+  const an=notaFinal(ant); if(an==null||an===0) return null;
+  const pct=((at-an)/an)*100;
+  return {anterior:an, atual:at, pct, tendencia: pct>0.5?'Evolução' : pct<-0.5?'Declínio' : 'Estabilidade',
+          clsAnt:classificar(an), clsAt:classificar(at), cicloAnt:ant.ciclo, anoAnt:ant.ano};
+}
+function mediaAnual(cid,ano){
+  const l=db.avaliacoes.filter(a=>a.colaboradorId===cid&&a.ano===ano&&completa(a)&&a.status!=='rascunho');
+  if(!l.length) return null;
+  return {media:l.reduce((s,a)=>s+notaFinal(a),0)/l.length, ciclos:l.length};
+}
+function exigePdi(a){
+  const n=notaFinal(a); if(n!=null && n<3.00) return true;
+  return DIMS.some(d=>((a.notas&&a.notas[d])||[]).some(x=>x===1||x===2));
+}
+function avaliacaoDe(cid,ano,ciclo){ return db.avaliacoes.find(a=>a.colaboradorId===cid&&a.ano===ano&&a.ciclo===ciclo); }
+const num=(v,c=2)=> v==null?'—':Number(v).toLocaleString('pt-BR',{minimumFractionDigits:c,maximumFractionDigits:c});
+const pct=(v)=> v==null?'—':num(v,1)+'%';
+const dataBR=(s)=> s? new Date(s+(s.length<=10?'T12:00':'')).toLocaleDateString('pt-BR') : '—';
+const hojeISO=()=> new Date().toISOString().slice(0,10);
+const esc=(s)=> String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+/* ======================================================================
+   4. PERSISTÊNCIA — local + Supabase (dados compartilhados)
+   ====================================================================== */
+var CHAVE='ad_contabilizare_v1';
+var db, eu=null, aba='painel', sub='', ctx={};
+var tmPush=null, tmPoll=null;
+
+function salvar(sincronizar=true){
+  db.carimbo=Date.now();
+  try{ localStorage.setItem(CHAVE, JSON.stringify(db)); }catch(e){ console.warn('local',e); }
+  if(sincronizar) agendarPush();
+}
+function carregar(){
+  try{ const j=localStorage.getItem(CHAVE); if(j){ db=JSON.parse(j); validar(); return; } }catch(e){}
+  db=seed(); localStorage.setItem(CHAVE, JSON.stringify(db));
+}
+function validar(){
+  const s=seed();
+  db.config = Object.assign({}, s.config, db.config||{});
+  db.config.nuvem = Object.assign({}, s.config.nuvem, db.config.nuvem||{});
+  ['usuarios','avaliacoes','pdis'].forEach(k=>{ if(!Array.isArray(db[k])) db[k]=s[k]; });
+  db.usuarios.forEach(u=>{ if(!u.escopo) u.escopo=[]; if(u.ativo===undefined) u.ativo=true; });
+  db.seqUsuario = db.seqUsuario || Math.max(0,...db.usuarios.map(u=>u.id));
+  db.seqAval = db.seqAval || Math.max(0,...db.avaliacoes.map(a=>a.id));
+  db.seqPdi  = db.seqPdi  || Math.max(0,...db.pdis.map(p=>p.id));
+}
+function nuvemLigada(){ const n=db.config.nuvem; return !!(n.ligada && n.url && n.chave); }
+function stNuvem(estado,texto){
+  const el=document.getElementById('nuvemSt'); if(!el) return;
+  el.innerHTML='<i class="pt '+estado+'"></i><span>'+texto+'</span>';
+}
+async function nuvemReq(metodo, sufixo, corpo){
+  const n=db.config.nuvem;
+  const r=await fetch(n.url.replace(/\/$/,'')+'/rest/v1/'+n.tabela+sufixo,{
+    method:metodo,
+    headers:{'apikey':n.chave,'Authorization':'Bearer '+n.chave,'Content-Type':'application/json',
+             'Prefer':metodo==='POST'?'resolution=merge-duplicates,return=representation':'return=representation'},
+    body: corpo?JSON.stringify(corpo):undefined
+  });
+  if(!r.ok) throw new Error(await r.text());
+  const t=await r.text(); return t?JSON.parse(t):null;
+}
+function agendarPush(){
+  if(!nuvemLigada()) { stNuvem('off','local'); return; }
+  clearTimeout(tmPush); tmPush=setTimeout(push, 1500);
+}
+async function push(){
+  if(!nuvemLigada()) return;
+  try{
+    stNuvem('off','enviando');
+    await nuvemReq('POST','',[{id:'principal', dados:db, atualizado_em:new Date().toISOString()}]);
+    stNuvem('','na nuvem');
+  }catch(e){ console.warn('push',e); stNuvem('erro','erro de envio'); }
+}
+async function puxar(){
+  if(!nuvemLigada()) return false;
+  try{
+    const r=await nuvemReq('GET','?id=eq.principal&select=dados');
+    if(r && r[0] && r[0].dados){ mesclar(r[0].dados); return true; }
+  }catch(e){ console.warn('pull',e); stNuvem('erro','sem conexão'); }
+  return false;
+}
+/* União por registro: quem tem o carimbo mais novo vence — evita perder
+   avaliações lançadas por dois gestores ao mesmo tempo. */
+function mesclar(remoto){
+  if(!remoto) return;
+  const uni=(local,rem)=>{
+    const mapa={}; (rem||[]).forEach(x=>mapa[x.id]=x);
+    (local||[]).forEach(x=>{ const r=mapa[x.id];
+      if(!r) mapa[x.id]=x;
+      else if((x.atualizadoEm||0) >= (r.atualizadoEm||0)) mapa[x.id]=x; });
+    return Object.values(mapa).sort((a,b)=>a.id-b.id);
+  };
+  db.usuarios  = uni(db.usuarios,  remoto.usuarios);
+  db.avaliacoes= uni(db.avaliacoes,remoto.avaliacoes);
+  db.pdis      = uni(db.pdis,      remoto.pdis);
+  if((remoto.carimbo||0) > (db.carimbo||0)) db.config=Object.assign({},db.config,remoto.config,{nuvem:db.config.nuvem});
+  db.seqUsuario=Math.max(db.seqUsuario||0, remoto.seqUsuario||0, ...db.usuarios.map(u=>u.id));
+  db.seqAval   =Math.max(db.seqAval||0,    remoto.seqAval||0,    ...db.avaliacoes.map(a=>a.id),0);
+  db.seqPdi    =Math.max(db.seqPdi||0,     remoto.seqPdi||0,     ...db.pdis.map(p=>p.id),0);
+  localStorage.setItem(CHAVE, JSON.stringify(db));
+}
+function iniciarPoll(){
+  clearInterval(tmPoll);
+  if(!nuvemLigada()){ stNuvem('off','local'); return; }
+  stNuvem('','na nuvem');
+  tmPoll=setInterval(async()=>{ if(await puxar() && eu) render(); }, 10000);
+}
+
+/* ======================================================================
+   5. LOGIN
+   ====================================================================== */
+function entrar(){
+  const l=document.getElementById('lgUser').value.trim().toLowerCase();
+  const s=document.getElementById('lgSenha').value;
+  const u=db.usuarios.find(x=>(x.login||'').toLowerCase()===l && x.ativo);
+  const box=document.getElementById('lgErro');
+  if(!u || !u.senha || u.senha!==s){
+    box.innerHTML='<div class="erro">Usuário ou senha não confere. Se você ainda não tem senha, peça ao RH para liberar seu acesso.</div>';
+    return;
+  }
+  eu=u; sessionStorage.setItem('ad_eu', u.id);
+  document.getElementById('login').style.display='none';
+  document.getElementById('app').style.display='block';
+  aba='painel'; sub=''; iniciarPoll(); render();
+}
+function sair(){ eu=null; sessionStorage.removeItem('ad_eu'); clearInterval(tmPoll);
+  document.getElementById('app').style.display='none';
+  document.getElementById('login').style.display='grid';
+  document.getElementById('lgSenha').value=''; document.getElementById('lgErro').innerHTML=''; }
+
+/* ======================================================================
+   6. NAVEGAÇÃO — abas e sub-abas
+   ====================================================================== */
+function abasDe(u){
+  const a=[['painel','Painel'],['avaliacoes','Avaliações'],['colaboradores','Colaboradores'],
+           ['pdi','PDI'],['feedback','Feedback'],['relatorios','Relatórios']];
+  if(u.perfil==='rh') a.push(['config','Configurações']);
+  return a;
+}
+var SUBS={
+  painel:[['geral','Visão geral'],['setor','Por setor'],['gestor','Por gestor'],
+          ['dimensao','Por dimensão'],['competencia','Por competência'],['evolucao','Evolução']],
+  avaliacoes:[['pendentes','A avaliar'],['andamento','Em andamento'],['concluidas','Concluídas'],['homologar','Homologação']],
+  colaboradores:[['lista','Minha visão'],['ficha','Ficha individual']],
+  pdi:[['abertos','Em andamento'],['concluidos','Concluídos'],['sugeridos','Exigidos pelo POP']],
+  feedback:[['pendentes','Pendentes'],['registrados','Registrados']],
+  relatorios:[['individual','Individual'],['setorial','Por setor'],['gerencial','Gerencial'],
+              ['executivo','Executivo'],['rankings','Rankings']],
+  config:[['usuarios','Usuários e acessos'],['ciclo','Ciclo avaliativo'],['nuvem','Nuvem e dados'],['metodologia','Metodologia']]
+};
+function subsDe(u,a){
+  let l=(SUBS[a]||[]).slice();
+  if(a==='avaliacoes' && u.perfil!=='rh') l=l.filter(x=>x[0]!=='homologar');
+  if(a==='relatorios' && !verTudo(u)) l=l.filter(x=>x[0]!=='executivo');
+  return l;
+}
+function irAba(a){ aba=a; sub=(subsDe(eu,a)[0]||[''])[0]; ctx={}; render(); }
+function irSub(s){ sub=s; render(); }
+function render(){
+  document.getElementById('quemNome').textContent=eu.nome;
+  document.getElementById('quemCargo').textContent=eu.cargo+' · '+rotuloPerfil(eu.perfil);
+  document.getElementById('tagCiclo').textContent=db.config.ciclo+'º TRI / '+db.config.ano;
+  document.getElementById('navAbas').innerHTML = abasDe(eu).map(([k,n])=>
+    `<button class="${aba===k?'on':''}" onclick="irAba('${k}')">${n}</button>`).join('');
+  const subs=subsDe(eu,aba);
+  if(sub.charAt(0)!=='_' && !subs.find(s=>s[0]===sub)) sub=(subs[0]||[''])[0];
+  document.getElementById('navSub').innerHTML = subs.map(([k,n])=>
+    `<button class="${sub===k?'on':''}" onclick="irSub('${k}')">${n}</button>`).join('');
+  const fn = TELAS[aba+'_'+sub] || TELAS[aba] || (()=>'<div class="vazio">Tela em branco.</div>');
+  document.getElementById('tela').innerHTML = fn();
+  if(typeof depois==='function' && depois._){ const f=depois._; depois._=null; f(); }
+}
+function depois(f){ depois._=f; }
+function rotuloPerfil(p){ return {rh:'Recursos Humanos',ceo:'Diretoria',gestor:'Gestor',coordenador:'Coordenador',colaborador:'Colaborador'}[p]||p; }
+
+/* ======================================================================
+   7. COMPONENTES
+   ====================================================================== */
+function tagCls(c){ return c? `<span class="tag ${c.cls}">${c.nome}</span>` : '<span class="tag tn">Sem nota</span>'; }
+function kpi(rot,val,pe){ return `<div class="kpi"><div class="rot">${rot}</div><div class="val">${val}</div>${pe?`<div class="pe">${pe}</div>`:''}</div>`; }
+function regua(nota){
+  const p = nota==null?0:((Math.min(5,Math.max(1,nota))-1)/4)*100;
+  return `<div>
+    <div class="regua">
+      <div class="z">Crítico</div><div class="z">Em desenv.</div><div class="z">Adequado</div>
+      <div class="z">Alto desemp.</div><div class="z">Excelência</div>
+      ${nota==null?'':`<div class="marcador" style="left:calc(${p}% - 1.5px)"></div>`}
+    </div>
+    <div class="reguaLeg"><span>1,00</span><span>2,00</span><span>3,00</span><span>3,80</span><span>4,50</span><span>5,00</span></div>
+  </div>`;
+}
+function tend(e){
+  if(!e) return '<span class="tend igual">— primeiro ciclo</span>';
+  const c = e.pct>0.5?'sobe':e.pct<-0.5?'desce':'igual';
+  const seta = e.pct>0.5?'▲':e.pct<-0.5?'▼':'●';
+  return `<span class="tend ${c}">${seta} ${num(e.pct,2)}% · ${e.tendencia}</span>`;
+}
+function grafico(id,cfg){ depois(()=>{ const el=document.getElementById(id); if(el) new Chart(el,cfg); }); }
+var PALETA=['#0D153E','#5B6C99','#C9A227','#95989A','#A8352A','#2A3468','#8F7218','#C9CCD4'];
+
+function abrirModal(titulo,corpo,rod){
+  document.getElementById('modal').innerHTML =
+    `<div class="cab"><h3>${titulo}</h3><button onclick="fecharModal()">×</button></div>
+     <div class="corpo">${corpo}</div>${rod?`<div class="rod">${rod}</div>`:''}`;
+  document.getElementById('fundo').classList.add('on');
+}
+function fecharModal(){ document.getElementById('fundo').classList.remove('on'); }
+document.getElementById('fundo').addEventListener('click',e=>{ if(e.target.id==='fundo') fecharModal(); });
+
+/* ======================================================================
+   8. CONJUNTO DE DADOS DO USUÁRIO (respeitando o acesso)
+   ====================================================================== */
+function escopoPessoas(){ return visiveis(eu); }
+function avalsCiclo(ano,ciclo){
+  const ids=escopoPessoas().map(p=>p.id);
+  return db.avaliacoes.filter(a=>a.ano===ano&&a.ciclo===ciclo&&ids.includes(a.colaboradorId));
+}
+function avalsValidas(ano,ciclo){ return avalsCiclo(ano,ciclo).filter(a=>completa(a)&&a.status!=='rascunho'); }
+function elegiveis(){ return escopoPessoas().filter(p=>p.ativo&&!p.vaga); }
+
+/* ======================================================================
+   9. TELAS — PAINEL
+   ====================================================================== */
+var TELAS={};
+
+TELAS['painel_geral']=()=>{
+  const {ano,ciclo}=db.config;
+  const eleg=elegiveis(), avs=avalsValidas(ano,ciclo);
+  const concl=avs.length, total=eleg.length;
+  const notas=avs.map(notaFinal).filter(n=>n!=null);
+  const media=notas.length?notas.reduce((s,n)=>s+n,0)/notas.length:null;
+  const aprov=avs.length?avs.reduce((s,a)=>s+aproveitamento(a),0)/avs.length:null;
+  const alto=notas.filter(n=>n>=3.80).length, exc=notas.filter(n=>n>=4.50).length;
+  const criticos=notas.filter(n=>n<3.00).length;
+  const dist=CLASSES.map(c=>notas.filter(n=>n>=c.min&&n<=c.max+0.0049).length);
+  const fb=avs.filter(a=>a.feedback&&a.feedback.realizado).length;
+  const pdisAbertos=db.pdis.filter(p=>p.status!=='concluido'&&escopoPessoas().some(x=>x.id===p.colaboradorId)).length;
+
+  grafico('gDist',{type:'doughnut',data:{labels:CLASSES.map(c=>c.nome),
+    datasets:[{data:dist,backgroundColor:CLASSES.map(c=>c.cor),borderWidth:0}]},
+    options:{plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:11}}}},cutout:'62%'}});
+  const mdim=DIMS.map(d=>{const v=avs.map(a=>mediaDim(a,d)).filter(x=>x!=null); return v.length?v.reduce((s,x)=>s+x,0)/v.length:0;});
+  grafico('gDim',{type:'radar',data:{labels:DIMS.map(d=>DIM[d].curto),
+    datasets:[{data:mdim,backgroundColor:'rgba(13,21,62,.14)',borderColor:'#0D153E',pointBackgroundColor:'#0D153E'}]},
+    options:{scales:{r:{min:0,max:5,ticks:{stepSize:1,font:{size:10}}}},plugins:{legend:{display:false}}}});
+
+  return `<div class="tituloTela">Painel de indicadores</div>
+  <div class="subtitulo">${ciclo}º trimestre de ${ano} · ${rotuloPerfil(eu.perfil)} · ${total} colaborador${total===1?'':'es'} no seu escopo</div>
+  ${total===0?'<div class="aviso">Você ainda não tem colaboradores no seu escopo de acesso.</div>':''}
+  <div class="grade g4" style="margin-bottom:16px">
+    ${kpi('Avaliações concluídas', total?Math.round(concl/total*100)+'%':'—', concl+' de '+total+' no ciclo')}
+    ${kpi('Média geral', num(media), 'Nota final ponderada')}
+    ${kpi('Aproveitamento médio', pct(aprov), 'Sobre 200 pontos possíveis')}
+    ${kpi('Alto desempenho', notas.length?Math.round(alto/notas.length*100)+'%':'—', alto+' pessoa(s) ≥ 3,80')}
+  </div>
+  <div class="grade g4" style="margin-bottom:16px">
+    ${kpi('Índice de excelência', notas.length?Math.round(exc/notas.length*100)+'%':'—', exc+' pessoa(s) ≥ 4,50')}
+    ${kpi('Abaixo de 3,00', criticos, 'PDI obrigatório pelo POP')}
+    ${kpi('Feedbacks realizados', concl?Math.round(fb/concl*100)+'%':'—', fb+' de '+concl+' concluídas')}
+    ${kpi('PDIs em andamento', pdisAbertos, 'No seu escopo')}
+  </div>
+  <div class="painel">
+    <h3>Régua de proficiência da equipe</h3>
+    <p class="dica">Posição da média geral do ciclo nas faixas de classificação da POL RH 0001.</p>
+    ${regua(media)}
+    <div style="margin-top:12px">${tagCls(classificar(media))}</div>
+  </div>
+  <div class="grade g2">
+    <div class="painel"><h3>Distribuição por classificação</h3><p class="dica">Ciclo atual</p>
+      <div style="height:220px"><canvas id="gDist"></canvas></div></div>
+    <div class="painel"><h3>Média por dimensão</h3><p class="dica">Pesos: Org. 25% · Téc. 35% · Comp. 20% · Qual. 20%</p>
+      <div style="height:220px"><canvas id="gDim"></canvas></div></div>
+  </div>`;
+};
+
+TELAS['painel_setor']=()=>{
+  const {ano,ciclo}=db.config;
+  const setores=[...new Set(elegiveis().map(p=>p.setor))].sort();
+  const linhas=setores.map(s=>{
+    const ps=elegiveis().filter(p=>p.setor===s);
+    const av=avalsValidas(ano,ciclo).filter(a=>ps.some(p=>p.id===a.colaboradorId));
+    const n=av.map(notaFinal).filter(x=>x!=null);
+    const m=n.length?n.reduce((a,b)=>a+b,0)/n.length:null;
+    const evs=av.map(evolucao).filter(e=>e); const ev=evs.length?evs.reduce((s,e)=>s+e.pct,0)/evs.length:null;
+    return {s, qtd:ps.length, feitas:av.length, m, ev};
+  });
+  grafico('gSet',{type:'bar',data:{labels:linhas.map(l=>l.s),
+    datasets:[{data:linhas.map(l=>l.m||0),backgroundColor:'#0D153E',borderRadius:5,barThickness:26}]},
+    options:{indexAxis:'y',scales:{x:{min:0,max:5,ticks:{stepSize:1}}},plugins:{legend:{display:false}}}});
+  return `<div class="tituloTela">Desempenho por setor</div>
+  <div class="subtitulo">${ciclo}º trimestre de ${ano}</div>
+  <div class="painel"><h3>Média do setor</h3><p class="dica">Escala de 1,00 a 5,00</p>
+    <div style="height:${Math.max(160,linhas.length*42)}px"><canvas id="gSet"></canvas></div></div>
+  <div class="painel">
+    <div class="barraAcoes"><h3 class="cresce">Consolidado</h3>
+      <button class="btn sec mini" onclick="imprimirSetorial()">Imprimir relatório setorial</button></div>
+    <table><thead><tr><th>Setor</th><th class="num">Pessoas</th><th class="num">Avaliadas</th>
+      <th class="num">Média</th><th>Classificação</th><th class="num">Evolução média</th></tr></thead><tbody>
+    ${linhas.length?linhas.map(l=>`<tr><td><b>${esc(l.s)}</b></td><td class="num">${l.qtd}</td>
+      <td class="num">${l.feitas}</td><td class="num">${num(l.m)}</td><td>${tagCls(classificar(l.m))}</td>
+      <td class="num">${l.ev==null?'—':num(l.ev,2)+'%'}</td></tr>`).join('')
+      :'<tr><td colspan="6" class="vazio">Nada no seu escopo.</td></tr>'}
+    </tbody></table></div>`;
+};
+
+TELAS['painel_gestor']=()=>{
+  const {ano,ciclo}=db.config;
+  const gestores=db.usuarios.filter(g=>db.usuarios.some(c=>c.gestorId===g.id) && (verTudo(eu)||podeVer(eu,g)||g.id===eu.id));
+  const linhas=gestores.map(g=>{
+    const eq=db.usuarios.filter(c=>c.gestorId===g.id&&c.ativo&&!c.vaga&&podeVer(eu,c));
+    const av=db.avaliacoes.filter(a=>a.ano===ano&&a.ciclo===ciclo&&eq.some(c=>c.id===a.colaboradorId)&&completa(a)&&a.status!=='rascunho');
+    const n=av.map(notaFinal); const m=n.length?n.reduce((a,b)=>a+b,0)/n.length:null;
+    return {g, eq:eq.length, feitas:av.length, m};
+  }).filter(l=>l.eq>0);
+  return `<div class="tituloTela">Desempenho por gestor</div>
+  <div class="subtitulo">Média das equipes no ${ciclo}º trimestre de ${ano} · indicador do POP item 9</div>
+  <div class="painel">
+    <table><thead><tr><th>Gestor / coordenador</th><th>Perfil</th><th class="num">Equipe</th>
+      <th class="num">Avaliações concluídas</th><th class="num">% conclusão</th><th class="num">Média da equipe</th><th>Classificação</th></tr></thead><tbody>
+    ${linhas.length?linhas.map(l=>`<tr>
+      <td><div class="pilha"><b>${esc(l.g.nome)}</b><small>${esc(l.g.cargo)}</small></div></td>
+      <td><span class="chip">${rotuloPerfil(l.g.perfil)}</span></td>
+      <td class="num">${l.eq}</td><td class="num">${l.feitas}</td>
+      <td class="num">${Math.round(l.feitas/l.eq*100)}%</td>
+      <td class="num">${num(l.m)}</td><td>${tagCls(classificar(l.m))}</td></tr>`).join('')
+      :'<tr><td colspan="7" class="vazio">Nada no seu escopo.</td></tr>'}
+    </tbody></table></div>`;
+};
+
+TELAS['painel_dimensao']=()=>{
+  const {ano,ciclo}=db.config; const avs=avalsValidas(ano,ciclo);
+  const linhas=DIMS.map(d=>{
+    const v=avs.map(a=>mediaDim(a,d)).filter(x=>x!=null);
+    const m=v.length?v.reduce((s,x)=>s+x,0)/v.length:null;
+    return {d, m, contrib: m==null?null:m*DIM[d].peso};
+  });
+  return `<div class="tituloTela">Desempenho por dimensão</div>
+  <div class="subtitulo">${ciclo}º trimestre de ${ano} · ${avs.length} avaliação(ões) concluída(s)</div>
+  <div class="grade g4" style="margin-bottom:16px">
+    ${linhas.map(l=>kpi(DIM[l.d].curto, num(l.m), 'Peso '+(DIM[l.d].peso*100)+'% · contribui '+num(l.contrib))).join('')}
+  </div>
+  <div class="painel"><h3>Como a nota final é formada</h3>
+    <p class="dica">Nota Final = (Org × 0,25) + (Téc × 0,35) + (Comp × 0,20) + (Qual × 0,20)</p>
+    <table><thead><tr><th>Dimensão</th><th class="num">Média</th><th class="num">Peso</th>
+      <th class="num">Contribuição</th><th style="width:34%">Escala</th></tr></thead><tbody>
+    ${linhas.map(l=>`<tr><td><b>${DIM[l.d].nome}</b></td><td class="num">${num(l.m)}</td>
+      <td class="num">${DIM[l.d].peso*100}%</td><td class="num">${num(l.contrib)}</td>
+      <td><div class="barra"><i style="width:${(l.m||0)/5*100}%"></i></div></td></tr>`).join('')}
+    <tr><td><b>Nota final do ciclo</b></td><td class="num"><b>${num(linhas.reduce((s,l)=>s+(l.contrib||0),0)||null)}</b></td>
+      <td class="num">100%</td><td class="num">—</td><td>${tagCls(classificar(linhas.every(l=>l.m!=null)?linhas.reduce((s,l)=>s+l.contrib,0):null))}</td></tr>
+    </tbody></table></div>`;
+};
+
+TELAS['painel_competencia']=()=>{
+  const {ano,ciclo}=db.config; const avs=avalsValidas(ano,ciclo);
+  let itens=[];
+  DIMS.forEach(d=>DIM[d].itens.forEach((txt,i)=>{
+    const v=avs.map(a=>(a.notas[d]||[])[i]).filter(x=>x>0);
+    itens.push({d,i,txt,m:v.length?v.reduce((s,x)=>s+x,0)/v.length:null,qtd:v.length,
+      criticos:v.filter(x=>x<=2).length});
+  }));
+  const comNota=itens.filter(x=>x.m!=null).sort((a,b)=>b.m-a.m);
+  const top=comNota.slice(0,5), baixo=comNota.slice(-5).reverse();
+  const tab=(l)=>l.map(x=>`<tr><td><span class="chip">${DIM[x.d].curto} ${String(x.i+1).padStart(2,'0')}</span></td>
+    <td style="font-size:12.5px">${esc(x.txt)}</td><td class="num">${num(x.m)}</td>
+    <td style="width:120px"><div class="barra"><i style="width:${x.m/5*100}%;background:${classificar(x.m).cor}"></i></div></td></tr>`).join('');
+  return `<div class="tituloTela">Ranking de competências</div>
+  <div class="subtitulo">${ciclo}º trimestre de ${ano} · base para o Plano Anual de Treinamento (MAN RH 0001, item 11)</div>
+  ${!comNota.length?'<div class="painel"><div class="vazio">Nenhuma avaliação concluída neste ciclo ainda.</div></div>':`
+  <div class="grade g2">
+    <div class="painel"><h3>Competências mais fortes</h3><p class="dica">Cinco maiores médias</p>
+      <table><tbody>${tab(top)}</tbody></table></div>
+    <div class="painel"><h3>Competências críticas</h3><p class="dica">Cinco menores médias · prioridade de treinamento</p>
+      <table><tbody>${tab(baixo)}</tbody></table></div>
+  </div>
+  <div class="painel"><h3>Todas as 40 competências</h3>
+    <p class="dica">Ordenadas da menor para a maior média. "Notas 1–2" indica quantas avaliações exigem PDI por essa competência.</p>
+    <table><thead><tr><th>Dimensão</th><th>Competência</th><th class="num">Média</th>
+      <th class="num">Avaliada em</th><th class="num">Notas 1–2</th></tr></thead><tbody>
+    ${comNota.slice().reverse().map(x=>`<tr><td><span class="chip">${DIM[x.d].curto}</span></td>
+      <td style="font-size:12.5px">${String(x.i+1).padStart(2,'0')} · ${esc(x.txt)}</td>
+      <td class="num" style="color:${classificar(x.m).cor};font-weight:600">${num(x.m)}</td>
+      <td class="num">${x.qtd}</td><td class="num">${x.criticos||'—'}</td></tr>`).join('')}
+    </tbody></table></div>`}`;
+};
+
+TELAS['painel_evolucao']=()=>{
+  const ano=db.config.ano; const eleg=elegiveis();
+  const series=[1,2,3,4].map(c=>{
+    const av=db.avaliacoes.filter(a=>a.ano===ano&&a.ciclo===c&&completa(a)&&a.status!=='rascunho'&&eleg.some(p=>p.id===a.colaboradorId));
+    const n=av.map(notaFinal); return n.length?n.reduce((a,b)=>a+b,0)/n.length:null;
+  });
+  const anual=series.filter(x=>x!=null);
+  grafico('gEvo',{type:'line',data:{labels:['1º TRI','2º TRI','3º TRI','4º TRI'],
+    datasets:[{data:series,borderColor:'#0D153E',backgroundColor:'rgba(13,21,62,.09)',fill:true,tension:.3,
+      pointRadius:5,pointBackgroundColor:'#0D153E',spanGaps:true}]},
+    options:{scales:{y:{min:1,max:5,ticks:{stepSize:.5}}},plugins:{legend:{display:false}}}});
+  const linhas=eleg.map(p=>{
+    const cic=[1,2,3,4].map(c=>{const a=avaliacaoDe(p.id,ano,c); return a&&completa(a)&&a.status!=='rascunho'?notaFinal(a):null;});
+    const val=cic.filter(x=>x!=null);
+    const ma=val.length?val.reduce((a,b)=>a+b,0)/val.length:null;
+    let ev=null; const idx=cic.map((v,i)=>v!=null?i:-1).filter(i=>i>=0);
+    if(idx.length>=2){const a=cic[idx[idx.length-2]],b=cic[idx[idx.length-1]]; ev=((b-a)/a)*100;}
+    return {p,cic,ma,ev};
+  });
+  return `<div class="tituloTela">Evolução ao longo do ano</div>
+  <div class="subtitulo">${ano} · média anual consolidada ao término do 4º ciclo (POL RH 0001, item 11)</div>
+  <div class="grade g3" style="margin-bottom:16px">
+    ${kpi('Média anual até aqui', num(anual.length?anual.reduce((a,b)=>a+b,0)/anual.length:null), anual.length+' de 4 ciclos concluídos')}
+    ${kpi('Evolução organizacional', anual.length>=2? num(((anual[anual.length-1]-anual[0])/anual[0])*100,2)+'%':'—','Do 1º ciclo apurado ao último')}
+    ${kpi('Pessoas em declínio', linhas.filter(l=>l.ev!=null&&l.ev<-0.5).length, 'Queda em relação ao ciclo anterior')}
+  </div>
+  <div class="painel"><h3>Média da organização por trimestre</h3><p class="dica">Escopo: o que você tem acesso</p>
+    <div style="height:250px"><canvas id="gEvo"></canvas></div></div>
+  <div class="painel"><h3>Evolução individual</h3><p class="dica">Notas finais por ciclo e média anual</p>
+    <table><thead><tr><th>Colaborador</th><th>Setor</th>
+      <th class="num">1º TRI</th><th class="num">2º TRI</th><th class="num">3º TRI</th><th class="num">4º TRI</th>
+      <th class="num">Média anual</th><th>Tendência</th></tr></thead><tbody>
+    ${linhas.length?linhas.map(l=>`<tr>
+      <td><b>${esc(l.p.nome)}</b></td><td>${esc(l.p.setor)}</td>
+      ${l.cic.map(v=>`<td class="num">${v==null?'—':num(v)}</td>`).join('')}
+      <td class="num"><b>${num(l.ma)}</b></td>
+      <td>${l.ev==null?'<span class="tend igual">—</span>':`<span class="tend ${l.ev>0.5?'sobe':l.ev<-0.5?'desce':'igual'}">${l.ev>0.5?'▲':l.ev<-0.5?'▼':'●'} ${num(l.ev,2)}%</span>`}</td>
+    </tr>`).join('') : '<tr><td colspan="8" class="vazio">Nada no seu escopo.</td></tr>'}
+    </tbody></table></div>`;
+};
+
+/* ======================================================================
+   10. TELAS — AVALIAÇÕES
+   ====================================================================== */
+function listaAvals(filtro){
+  const {ano,ciclo}=db.config;
+  const meus=meusAvaliados(eu);
+  return meus.map(c=>{
+    const a=avaliacaoDe(c.id,ano,ciclo);
+    return {c,a};
+  }).filter(filtro);
+}
+function cartaoLinha(c,a){
+  const n=a?notaFinal(a):null; const e=a?evolucao(a):null;
+  const st = !a?'Não iniciada' : a.status==='rascunho'?'Em andamento' : a.status==='concluida'?'Aguardando RH':'Homologada';
+  const stc = !a?'tn' : a.status==='rascunho'?'t2' : a.status==='concluida'?'t3':'t4';
+  return `<tr>
+    <td><div class="pilha"><b>${esc(c.nome)}</b><small>${esc(c.cargo)} · ${esc(c.setor)}</small></div></td>
+    <td><span class="tag ${stc}">${st}</span></td>
+    <td class="num">${a?preenchidas(a)+'/40':'—'}</td>
+    <td class="num">${num(n)}</td>
+    <td>${tagCls(classificar(n))}</td>
+    <td>${tend(e)}</td>
+    <td style="text-align:right;white-space:nowrap">
+      <button class="btn mini" onclick="abrirAval(${c.id})">${a&&a.status!=='rascunho'?'Ver':'Avaliar'}</button>
+      ${a&&completa(a)?`<button class="btn sec mini" onclick="imprimirIndividual(${a.id})">Imprimir</button>`:''}
+    </td></tr>`;
+}
+function tabelaAvals(linhas,vazio){
+  return `<table><thead><tr><th>Colaborador</th><th>Situação</th><th class="num">Preenchido</th>
+    <th class="num">Nota final</th><th>Classificação</th><th>Evolução</th><th></th></tr></thead><tbody>
+    ${linhas.length?linhas.join(''):`<tr><td colspan="7" class="vazio">${vazio}</td></tr>`}</tbody></table>`;
+}
+TELAS['avaliacoes_pendentes']=()=>{
+  const l=listaAvals(x=>!x.a || !completa(x.a) || x.a.status==='rascunho');
+  return `<div class="tituloTela">Colaboradores a avaliar</div>
+  <div class="subtitulo">${db.config.ciclo}º trimestre de ${db.config.ano} · você avalia ${meusAvaliados(eu).length} pessoa(s)</div>
+  ${meusAvaliados(eu).length===0?'<div class="aviso">Você não tem equipe para avaliar neste ciclo.</div>':''}
+  <div class="painel">${tabelaAvals(l.map(x=>cartaoLinha(x.c,x.a)),'Tudo em dia — nenhuma avaliação pendente.')}</div>`;
+};
+TELAS['avaliacoes_andamento']=()=>{
+  const l=listaAvals(x=>x.a&&x.a.status==='rascunho');
+  return `<div class="tituloTela">Avaliações em andamento</div>
+  <div class="subtitulo">Rascunhos que ainda não foram concluídos</div>
+  <div class="painel">${tabelaAvals(l.map(x=>cartaoLinha(x.c,x.a)),'Nenhum rascunho aberto.')}</div>`;
+};
+TELAS['avaliacoes_concluidas']=()=>{
+  const {ano,ciclo}=db.config;
+  const ids=escopoPessoas().map(p=>p.id);
+  const l=db.avaliacoes.filter(a=>a.ano===ano&&a.ciclo===ciclo&&ids.includes(a.colaboradorId)&&a.status!=='rascunho'&&completa(a));
+  return `<div class="tituloTela">Avaliações concluídas</div>
+  <div class="subtitulo">Todas as avaliações do seu escopo de acesso neste ciclo</div>
+  <div class="painel">${tabelaAvals(l.map(a=>cartaoLinha(pessoa(a.colaboradorId),a)),'Nenhuma avaliação concluída ainda.')}</div>`;
+};
+TELAS['avaliacoes_homologar']=()=>{
+  const {ano,ciclo}=db.config;
+  const pend=db.avaliacoes.filter(a=>a.ano===ano&&a.ciclo===ciclo&&a.status==='concluida');
+  const hom=db.avaliacoes.filter(a=>a.ano===ano&&a.ciclo===ciclo&&a.status==='homologada');
+  const check=(a)=>{
+    const f=[];
+    if(!completa(a)) f.push('40 competências preenchidas');
+    const semEvid=DIMS.some(d=>(a.notas[d]||[]).some((n,i)=>(n===1||n===2||n===4||n===5)&&!((a.evidencias[d]||[])[i]||'').trim()));
+    if(semEvid) f.push('evidências nas notas 1, 2, 4 e 5');
+    if(!(a.pontosFortes||'').trim()) f.push('pontos fortes');
+    if(!(a.oportunidades||'').trim()) f.push('oportunidades de desenvolvimento');
+    if(exigePdi(a) && !db.pdis.some(p=>p.avaliacaoId===a.id)) f.push('PDI obrigatório');
+    return f;
+  };
+  return `<div class="tituloTela">Validação e homologação</div>
+  <div class="subtitulo">Etapas 5 e 6 do POP RH 0001 · exclusivo do Recursos Humanos</div>
+  <div class="painel">
+    <h3>Aguardando validação do RH</h3>
+    <p class="dica">Ao homologar, o resultado passa a compor os relatórios e indicadores oficiais do ciclo.</p>
+    <table><thead><tr><th>Colaborador</th><th>Avaliador</th><th class="num">Nota final</th>
+      <th>Classificação</th><th>Pendências de conformidade</th><th></th></tr></thead><tbody>
+    ${pend.length?pend.map(a=>{const f=check(a); return `<tr>
+      <td><div class="pilha"><b>${esc(pessoa(a.colaboradorId).nome)}</b><small>${esc(pessoa(a.colaboradorId).setor)}</small></div></td>
+      <td>${esc(pessoa(a.avaliadorId).nome)}</td>
+      <td class="num">${num(notaFinal(a))}</td><td>${tagCls(classificar(notaFinal(a)))}</td>
+      <td style="font-size:12px;color:${f.length?'var(--dourado)':'var(--marinho)'}">${f.length?'Falta: '+f.join('; '):'Conforme'}</td>
+      <td style="text-align:right;white-space:nowrap">
+        <button class="btn sec mini" onclick="abrirAval(${a.colaboradorId})">Ver</button>
+        <button class="btn mini" onclick="homologar(${a.id})">Homologar</button>
+        <button class="btn sec mini" onclick="devolver(${a.id})">Devolver</button></td></tr>`;}).join('')
+      :'<tr><td colspan="6" class="vazio">Nenhuma avaliação aguardando validação.</td></tr>'}
+    </tbody></table>
+  </div>
+  <div class="painel"><h3>Homologadas neste ciclo</h3>
+    <table><thead><tr><th>Colaborador</th><th>Avaliador</th><th class="num">Nota final</th>
+      <th>Classificação</th><th>Homologação</th><th></th></tr></thead><tbody>
+    ${hom.length?hom.map(a=>`<tr><td><b>${esc(pessoa(a.colaboradorId).nome)}</b></td>
+      <td>${esc(pessoa(a.avaliadorId).nome)}</td><td class="num">${num(notaFinal(a))}</td>
+      <td>${tagCls(classificar(notaFinal(a)))}</td><td style="font-size:12px">${dataBR(a.dataHomologacao)} · ${esc(pessoa(a.homologadoPor).nome)}</td>
+      <td style="text-align:right"><button class="btn sec mini" onclick="imprimirIndividual(${a.id})">Imprimir</button></td></tr>`).join('')
+      :'<tr><td colspan="6" class="vazio">Nada homologado ainda.</td></tr>'}
+    </tbody></table></div>`;
+};
+
+/* --- Formulário de avaliação --- */
+function novaAval(cid){
+  db.seqAval++;
+  const a={id:db.seqAval, colaboradorId:cid, avaliadorId:eu.id, ano:db.config.ano, ciclo:db.config.ciclo,
+    data:hojeISO(), notas:{}, evidencias:{}, pontosFortes:'', oportunidades:'', observacoes:'',
+    status:'rascunho', dataHomologacao:'', homologadoPor:null,
+    feedback:{realizado:false, data:'', registro:'', metas:''}, atualizadoEm:Date.now()};
+  DIMS.forEach(d=>{ a.notas[d]=Array(10).fill(0); a.evidencias[d]=Array(10).fill(''); });
+  db.avaliacoes.push(a); return a;
+}
+function abrirAval(cid){
+  const c=pessoa(cid);
+  if(!podeVer(eu,c) && !podeAvaliar(eu,c)){
+    alerta('Sem acesso','Você não tem acesso às informações de '+esc(c.nome)+'. O acesso segue a hierarquia de avaliação da Contabilizare.');
+    return;
+  }
+  let a=avaliacaoDe(cid,db.config.ano,db.config.ciclo);
+  const soLeitura = !podeAvaliar(eu,c) || (a && a.status==='homologada' && eu.perfil!=='rh');
+  if(!a){ if(!podeAvaliar(eu,c)){ alerta('Sem avaliação','Ainda não existe avaliação de '+esc(c.nome)+' neste ciclo. Quem avalia é '+esc(pessoa(c.gestorId).nome)+'.'); return; } a=novaAval(cid); salvar(); }
+  ctx.aval=a.id; ctx.leitura=soLeitura; ctx.dimAberta=ctx.dimAberta||'org';
+  aba='avaliacoes'; sub='_form'; render();
+}
+TELAS['avaliacoes__form']=()=>{
+  const a=db.avaliacoes.find(x=>x.id===ctx.aval); if(!a) return '<div class="vazio">Avaliação não encontrada.</div>';
+  const c=pessoa(a.colaboradorId); const d=ctx.dimAberta;
+  const n=notaFinal(a); const e=evolucao(a); const L=ctx.leitura;
+  const feitas=preenchidas(a);
+  return `<button class="btn sec mini" style="margin-bottom:12px" onclick="irAba('avaliacoes')">← Voltar</button>
+  <div class="tituloTela">${esc(c.nome)}</div>
+  <div class="subtitulo">${esc(c.cargo)} · ${esc(c.setor)} · avaliado por ${esc(pessoa(a.avaliadorId).nome)} ·
+    ${a.ciclo}º trimestre de ${a.ano} · ${a.status==='homologada'?'homologada em '+dataBR(a.dataHomologacao):a.status==='concluida'?'aguardando validação do RH':'rascunho'}</div>
+  ${L?'<div class="aviso">Modo consulta: você tem acesso a esta avaliação, mas quem avalia este colaborador é '+esc(pessoa(c.gestorId).nome)+'.</div>':''}
+
+  <div class="grade g5" style="margin-bottom:16px">
+    ${DIMS.map(k=>kpi(DIM[k].curto, num(mediaDim(a,k)), 'Peso '+(DIM[k].peso*100)+'%')).join('')}
+    ${kpi('Nota final', num(n), n==null?feitas+'/40 preenchidas':classificar(n).nome)}
+  </div>
+  <div class="painel">${regua(n)}
+    <div class="grade g4" style="margin-top:14px">
+      <div><div class="rot" style="font-size:11px;color:var(--tinta3);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Pontuação obtida</div>
+        <div style="font-family:var(--mono);font-size:19px;font-weight:600">${pontuacao(a)} <span style="font-size:12px;color:var(--tinta3)">/ 200</span></div></div>
+      <div><div class="rot" style="font-size:11px;color:var(--tinta3);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Aproveitamento</div>
+        <div style="font-family:var(--mono);font-size:19px;font-weight:600">${pct(completa(a)?aproveitamento(a):null)}</div></div>
+      <div><div class="rot" style="font-size:11px;color:var(--tinta3);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Classificação</div>
+        <div style="margin-top:4px">${tagCls(classificar(n))}</div></div>
+      <div><div class="rot" style="font-size:11px;color:var(--tinta3);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Evolução</div>
+        <div style="margin-top:6px">${tend(e)}</div></div>
+    </div>
+    ${exigePdi(a)?`<div class="aviso" style="margin:14px 0 0">PDI obrigatório pelo POP RH 0001: nota final abaixo de 3,00 ou competência avaliada com 1 ou 2.
+      ${db.pdis.some(p=>p.avaliacaoId===a.id)?'<b>PDI já registrado.</b>':`<button class="btn mini" style="margin-left:8px" onclick="abrirPdi(${a.id})">Registrar PDI</button>`}</div>`:''}
+  </div>
+
+  <div class="painel">
+    <div class="barraAcoes">
+      ${DIMS.map(k=>`<button class="btn ${d===k?'':'sec'} mini" onclick="ctx.dimAberta='${k}';render()">
+        ${DIM[k].curto} <span style="opacity:.7;font-family:var(--mono)">${(a.notas[k]||[]).filter(x=>x>0).length}/10</span></button>`).join('')}
+      <div class="cresce"></div>
+      <button class="btn sec mini" onclick="verEscala()">Escala de 1 a 5</button>
+    </div>
+    <h3>${DIM[d].nome}</h3>
+    <p class="dica">Peso ${DIM[d].peso*100}% na nota final. Registre evidências sempre que atribuir 1, 2, 4 ou 5.</p>
+    ${DIM[d].itens.map((txt,i)=>{
+      const nota=(a.notas[d]||[])[i]||0; const ev=(a.evidencias[d]||[])[i]||'';
+      const pedeEv=[1,2,4,5].includes(nota);
+      return `<div class="linhaComp">
+        <div class="n">${String(i+1).padStart(2,'0')}</div>
+        <div><div class="txt">${esc(txt)}</div>
+          ${pedeEv?`<input class="evid" placeholder="Evidência observada no trimestre${ev?'':' (recomendado)'}" value="${esc(ev)}"
+            ${L?'disabled':''} onchange="setEvid('${d}',${i},this.value)">`:''}</div>
+        <div class="notas">${[1,2,3,4,5].map(v=>`<button class="${nota===v?'on n'+v:''}" ${L?'disabled':''}
+          onclick="setNota('${d}',${i},${v})" title="${ESCALA[v-1].nome}">${v}</button>`).join('')}</div>
+      </div>`;}).join('')}
+  </div>
+
+  <div class="grade g2">
+    <div class="painel"><h3>Pontos fortes</h3><p class="dica">Competências que se destacaram no período</p>
+      <textarea ${L?'disabled':''} onchange="setCampo('pontosFortes',this.value)">${esc(a.pontosFortes)}</textarea></div>
+    <div class="painel"><h3>Oportunidades de desenvolvimento</h3><p class="dica">Competências que precisam evoluir</p>
+      <textarea ${L?'disabled':''} onchange="setCampo('oportunidades',this.value)">${esc(a.oportunidades)}</textarea></div>
+  </div>
+  <div class="painel"><h3>Observações do gestor</h3>
+    <textarea ${L?'disabled':''} onchange="setCampo('observacoes',this.value)">${esc(a.observacoes)}</textarea></div>
+
+  ${L?'':`<div class="barraAcoes">
+    <button class="btn sec" onclick="salvar();alerta('Rascunho salvo','As notas ficam guardadas. Você pode continuar depois.')">Salvar rascunho</button>
+    <button class="btn" onclick="concluirAval(${a.id})" ${completa(a)?'':'disabled style="opacity:.45;cursor:not-allowed"'}>
+      ${completa(a)?'Concluir e enviar ao RH':'Preencha as 40 competências'}</button>
+    ${completa(a)?`<button class="btn sec" onclick="imprimirIndividual(${a.id})">Imprimir</button>`:''}
+  </div>`}
+  ${L&&completa(a)?`<button class="btn sec" onclick="imprimirIndividual(${a.id})">Imprimir relatório individual</button>`:''}`;
+};
+function setNota(d,i,v){
+  const a=db.avaliacoes.find(x=>x.id===ctx.aval);
+  a.notas[d][i] = a.notas[d][i]===v?0:v; a.atualizadoEm=Date.now(); salvar(); render();
+}
+function setEvid(d,i,v){ const a=db.avaliacoes.find(x=>x.id===ctx.aval); a.evidencias[d][i]=v; a.atualizadoEm=Date.now(); salvar(); }
+function setCampo(k,v){ const a=db.avaliacoes.find(x=>x.id===ctx.aval); a[k]=v; a.atualizadoEm=Date.now(); salvar(); }
+function concluirAval(id){
+  const a=db.avaliacoes.find(x=>x.id===id);
+  if(!completa(a)) return;
+  a.status='concluida'; a.data=hojeISO(); a.atualizadoEm=Date.now(); salvar();
+  const pdi = exigePdi(a) && !db.pdis.some(p=>p.avaliacaoId===a.id);
+  alerta('Avaliação concluída', 'Nota final <b>'+num(notaFinal(a))+'</b> · '+classificar(notaFinal(a)).nome+
+    '.<br><br>O RH vai validar e homologar o resultado. Lembre-se do feedback em até 15 dias após a homologação.'+
+    (pdi?'<br><br><b>Esta avaliação exige PDI</b> pelo POP RH 0001.':''));
+  render();
+}
+function homologar(id){
+  const a=db.avaliacoes.find(x=>x.id===id);
+  a.status='homologada'; a.dataHomologacao=hojeISO(); a.homologadoPor=eu.id; a.atualizadoEm=Date.now();
+  salvar(); render();
+}
+function devolver(id){
+  const a=db.avaliacoes.find(x=>x.id===id);
+  a.status='rascunho'; a.atualizadoEm=Date.now(); salvar();
+  alerta('Devolvida ao gestor','A avaliação de '+esc(pessoa(a.colaboradorId).nome)+' voltou para revisão do avaliador.');
+  render();
+}
+function verEscala(){
+  abrirModal('Escala de avaliação', `<table><thead><tr><th class="num">Nota</th><th>Nível</th><th>Significado</th></tr></thead><tbody>
+    ${ESCALA.map(e=>`<tr><td class="num"><b>${e.n}</b></td><td><b>${e.nome}</b></td><td style="font-size:12.5px">${e.desc}</td></tr>`).join('')}
+    </tbody></table>
+    <p style="margin-top:14px;font-size:12.5px;color:var(--tinta2)">Avalie apenas o desempenho do trimestre em curso, com base em fatos, evidências e comportamentos observados.</p>`,
+    '<button class="btn" onclick="fecharModal()">Entendi</button>');
+}
+function alerta(t,m){ abrirModal(t,`<p style="font-size:13.5px;line-height:1.6">${m}</p>`,'<button class="btn" onclick="fecharModal()">Fechar</button>'); }
+
+/* ======================================================================
+   11. TELAS — COLABORADORES
+   ====================================================================== */
+TELAS['colaboradores_lista']=()=>{
+  const {ano,ciclo}=db.config;
+  const l=escopoPessoas().sort((a,b)=> a.setor.localeCompare(b.setor) || a.nome.localeCompare(b.nome));
+  return `<div class="tituloTela">Colaboradores no seu acesso</div>
+  <div class="subtitulo">${l.length} pessoa(s) · o acesso segue a hierarquia definida pela Contabilizare</div>
+  <div class="painel">
+    <table><thead><tr><th>Colaborador</th><th>Cargo</th><th>Setor</th><th>Avaliado por</th>
+      <th class="num">Nota do ciclo</th><th>Classificação</th><th>Tendência</th><th></th></tr></thead><tbody>
+    ${l.length?l.map(p=>{
+      const a=avaliacaoDe(p.id,ano,ciclo); const n=a&&completa(a)&&a.status!=='rascunho'?notaFinal(a):null;
+      return `<tr>
+      <td><div class="pilha"><b>${esc(p.nome)}</b>${p.vaga?'<small style="color:var(--dourado)">vaga em aberto</small>':''}</div></td>
+      <td>${esc(p.cargo)}</td><td>${esc(p.setor)}</td>
+      <td style="font-size:12.5px">${p.gestorId?esc(pessoa(p.gestorId).nome):'—'}</td>
+      <td class="num">${num(n)}</td><td>${tagCls(classificar(n))}</td>
+      <td>${tend(a?evolucao(a):null)}</td>
+      <td style="text-align:right"><button class="btn sec mini" onclick="verFicha(${p.id})">Ficha</button></td></tr>`;}).join('')
+      :'<tr><td colspan="8" class="vazio">Nada no seu escopo.</td></tr>'}
+    </tbody></table></div>`;
+};
+function verFicha(id){ ctx.ficha=id; aba='colaboradores'; sub='ficha'; render(); }
+TELAS['colaboradores_ficha']=()=>{
+  const opc=escopoPessoas();
+  if(!ctx.ficha && opc.length) ctx.ficha=opc[0].id;
+  const p=pessoa(ctx.ficha); if(!opc.length) return '<div class="painel"><div class="vazio">Nada no seu escopo.</div></div>';
+  const ano=db.config.ano;
+  const cic=[1,2,3,4].map(c=>{const a=avaliacaoDe(p.id,ano,c); return {c, a, n:a&&completa(a)&&a.status!=='rascunho'?notaFinal(a):null};});
+  const ma=mediaAnual(p.id,ano);
+  const atual=cic.filter(x=>x.n!=null).pop();
+  const a=atual?atual.a:null;
+  const dims=DIMS.map(d=>{ const v=cic.map(x=>x.a&&mediaDim(x.a,d)).filter(x=>x!=null); return v.length?v[v.length-1]:null; });
+
+  grafico('gFichaEvo',{type:'line',data:{labels:['1º TRI','2º TRI','3º TRI','4º TRI'],
+    datasets:[{label:'Nota final',data:cic.map(x=>x.n),borderColor:'#0D153E',backgroundColor:'rgba(13,21,62,.09)',
+      fill:true,tension:.3,pointRadius:5,spanGaps:true}]},
+    options:{scales:{y:{min:1,max:5,ticks:{stepSize:.5}}},plugins:{legend:{display:false}}}});
+  grafico('gFichaDim',{type:'bar',data:{labels:DIMS.map(d=>DIM[d].curto),
+    datasets:[{data:dims,backgroundColor:PALETA.slice(0,4),borderRadius:5}]},
+    options:{scales:{y:{min:0,max:5,ticks:{stepSize:1}}},plugins:{legend:{display:false}}}});
+
+  return `<div class="tituloTela">Ficha individual</div>
+  <div class="subtitulo">Dashboard de indicadores do colaborador · ano ${ano}</div>
+  <div class="painel">
+    <div class="barraAcoes">
+      <div style="min-width:260px"><label style="margin-top:0">Colaborador</label>
+        <select onchange="ctx.ficha=+this.value;render()">
+          ${opc.map(o=>`<option value="${o.id}" ${o.id===p.id?'selected':''}>${esc(o.nome)} — ${esc(o.setor)}</option>`).join('')}
+        </select></div>
+      <div class="cresce"></div>
+      ${a?`<button class="btn sec mini" onclick="imprimirIndividual(${a.id})">Imprimir relatório individual</button>`:''}
+    </div>
+    <div class="grade g4" style="margin-top:4px">
+      ${kpi('Cargo', `<span style="font-size:14px;font-family:var(--corpo)">${esc(p.cargo)}</span>`, esc(p.setor))}
+      ${kpi('Nota do último ciclo', num(atual?atual.n:null), atual?atual.c+'º trimestre':'sem avaliação')}
+      ${kpi('Média anual', num(ma?ma.media:null), (ma?ma.ciclos:0)+' de 4 ciclos')}
+      ${kpi('Aproveitamento', pct(a?aproveitamento(a):null), a?pontuacao(a)+' de 200 pontos':'—')}
+    </div>
+  </div>
+  <div class="painel"><h3>Régua de proficiência</h3>
+    <p class="dica">Posição no último ciclo avaliado</p>${regua(atual?atual.n:null)}
+    <div style="margin-top:12px;display:flex;gap:10px;align-items:center">${tagCls(classificar(atual?atual.n:null))} ${tend(a?evolucao(a):null)}</div></div>
+  <div class="grade g2">
+    <div class="painel"><h3>Evolução trimestral</h3><p class="dica">Nota final por ciclo</p>
+      <div style="height:220px"><canvas id="gFichaEvo"></canvas></div></div>
+    <div class="painel"><h3>Perfil por dimensão</h3><p class="dica">Último ciclo avaliado</p>
+      <div style="height:220px"><canvas id="gFichaDim"></canvas></div></div>
+  </div>
+  <div class="painel"><h3>Histórico de avaliações</h3>
+    <table><thead><tr><th>Ciclo</th><th class="num">Org.</th><th class="num">Téc.</th><th class="num">Comp.</th>
+      <th class="num">Qual.</th><th class="num">Nota final</th><th class="num">Pontos</th><th class="num">Aprov.</th>
+      <th>Classificação</th><th>Situação</th></tr></thead><tbody>
+    ${cic.some(x=>x.a)?cic.filter(x=>x.a).map(x=>`<tr>
+      <td><b>${x.c}º TRI</b></td>
+      ${DIMS.map(d=>`<td class="num">${num(mediaDim(x.a,d))}</td>`).join('')}
+      <td class="num"><b>${num(x.n)}</b></td><td class="num">${pontuacao(x.a)}</td>
+      <td class="num">${pct(completa(x.a)?aproveitamento(x.a):null)}</td>
+      <td>${tagCls(classificar(x.n))}</td>
+      <td style="font-size:12px">${x.a.status==='homologada'?'Homologada':x.a.status==='concluida'?'Aguardando RH':'Rascunho'}</td>
+    </tr>`).join(''):'<tr><td colspan="10" class="vazio">Sem avaliações registradas.</td></tr>'}
+    </tbody></table></div>
+  ${a?`<div class="grade g2">
+    <div class="painel"><h3>Pontos fortes</h3><p style="font-size:13px;white-space:pre-wrap">${esc(a.pontosFortes)||'<span style="color:var(--tinta3)">Não registrado.</span>'}</p></div>
+    <div class="painel"><h3>Oportunidades de desenvolvimento</h3><p style="font-size:13px;white-space:pre-wrap">${esc(a.oportunidades)||'<span style="color:var(--tinta3)">Não registrado.</span>'}</p></div>
+  </div>`:''}`;
+};
+
+/* ======================================================================
+   12. TELAS — PDI
+   ====================================================================== */
+function abrirPdi(avalId){
+  const a=db.avaliacoes.find(x=>x.id===avalId);
+  let p=db.pdis.find(x=>x.avaliacaoId===avalId);
+  if(!p){ db.seqPdi++; p={id:db.seqPdi, avaliacaoId:avalId, colaboradorId:a.colaboradorId, ano:a.ano, ciclo:a.ciclo,
+    itens:[], status:'andamento', criadoEm:hojeISO(), atualizadoEm:Date.now()}; db.pdis.push(p); salvar(); }
+  ctx.pdi=p.id; formPdi();
+}
+function formPdi(){
+  const p=db.pdis.find(x=>x.id===ctx.pdi); const c=pessoa(p.colaboradorId);
+  const a=db.avaliacoes.find(x=>x.id===p.avaliacaoId);
+  const fracas=[]; if(a) DIMS.forEach(d=>DIM[d].itens.forEach((t,i)=>{ const n=a.notas[d][i]; if(n===1||n===2) fracas.push(DIM[d].curto+' '+String(i+1).padStart(2,'0')+' — '+t); }));
+  abrirModal('PDI · '+esc(c.nome),
+    `<p style="font-size:12.5px;color:var(--tinta2);margin-bottom:12px">${p.ciclo}º trimestre de ${p.ano}.
+      Conforme o POP RH 0001, cada ação deve ter competência, objetivo, ação, responsável, prazo e indicador de sucesso.</p>
+    ${fracas.length?`<div class="aviso"><b>Competências com nota 1 ou 2 nesta avaliação:</b><br>${fracas.map(f=>'· '+esc(f)).join('<br>')}</div>`:''}
+    ${p.itens.map((it,i)=>`<div style="border:1px solid var(--linha);border-radius:9px;padding:12px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;margin-bottom:8px"><b style="font-family:var(--mono);font-size:12px">AÇÃO ${String(i+1).padStart(2,'0')}</b>
+        <button class="btn sec mini" style="margin-left:auto" onclick="delPdiItem(${i})">Remover</button></div>
+      <div class="grade g2">
+        <div><label>Competência</label><input value="${esc(it.competencia)}" onchange="setPdi(${i},'competencia',this.value)"></div>
+        <div><label>Objetivo</label><input value="${esc(it.objetivo)}" onchange="setPdi(${i},'objetivo',this.value)"></div>
+      </div>
+      <label>Ação de desenvolvimento</label><input value="${esc(it.acao)}" onchange="setPdi(${i},'acao',this.value)">
+      <div class="grade g3">
+        <div><label>Responsável</label><input value="${esc(it.responsavel)}" onchange="setPdi(${i},'responsavel',this.value)"></div>
+        <div><label>Prazo</label><input type="date" value="${esc(it.prazo)}" onchange="setPdi(${i},'prazo',this.value)"></div>
+        <div><label>Situação</label><select onchange="setPdi(${i},'status',this.value)">
+          ${['Não iniciada','Em andamento','Concluída'].map(s=>`<option ${it.status===s?'selected':''}>${s}</option>`).join('')}
+        </select></div>
+      </div>
+      <div class="grade g2">
+        <div><label>Indicador de sucesso</label><input value="${esc(it.indicador)}" onchange="setPdi(${i},'indicador',this.value)"></div>
+        <div><label>Data da revisão</label><input type="date" value="${esc(it.revisao)}" onchange="setPdi(${i},'revisao',this.value)"></div>
+      </div>
+    </div>`).join('')}
+    ${p.itens.length?'':'<div class="vazio">Nenhuma ação registrada. Comece adicionando a primeira.</div>'}
+    <button class="btn sec mini" onclick="addPdiItem()">+ Adicionar ação</button>`,
+    `<button class="btn sec" onclick="fecharModal();render()">Fechar</button>
+     <button class="btn" onclick="concluirPdi()">${p.status==='concluido'?'Reabrir PDI':'Marcar PDI como concluído'}</button>`);
+}
+function addPdiItem(){ const p=db.pdis.find(x=>x.id===ctx.pdi);
+  p.itens.push({competencia:'',objetivo:'',acao:'',responsavel:'',prazo:'',indicador:'',revisao:'',status:'Não iniciada'});
+  p.atualizadoEm=Date.now(); salvar(); formPdi(); }
+function delPdiItem(i){ const p=db.pdis.find(x=>x.id===ctx.pdi); p.itens.splice(i,1); p.atualizadoEm=Date.now(); salvar(); formPdi(); }
+function setPdi(i,k,v){ const p=db.pdis.find(x=>x.id===ctx.pdi); p.itens[i][k]=v; p.atualizadoEm=Date.now(); salvar(); }
+function concluirPdi(){ const p=db.pdis.find(x=>x.id===ctx.pdi);
+  p.status = p.status==='concluido'?'andamento':'concluido'; p.atualizadoEm=Date.now(); salvar(); formPdi(); }
+
+function tabelaPdi(l){
+  return `<table><thead><tr><th>Colaborador</th><th>Ciclo</th><th class="num">Nota</th><th class="num">Ações</th>
+    <th class="num">Concluídas</th><th>Progresso</th><th></th></tr></thead><tbody>
+  ${l.length?l.map(p=>{
+    const a=db.avaliacoes.find(x=>x.id===p.avaliacaoId);
+    const ok=p.itens.filter(i=>i.status==='Concluída').length;
+    return `<tr><td><div class="pilha"><b>${esc(pessoa(p.colaboradorId).nome)}</b><small>${esc(pessoa(p.colaboradorId).setor)}</small></div></td>
+      <td>${p.ciclo}º TRI ${p.ano}</td><td class="num">${num(a?notaFinal(a):null)}</td>
+      <td class="num">${p.itens.length}</td><td class="num">${ok}</td>
+      <td style="width:140px"><div class="barra"><i style="width:${p.itens.length?ok/p.itens.length*100:0}%"></i></div></td>
+      <td style="text-align:right"><button class="btn sec mini" onclick="ctx.pdi=${p.id};formPdi()">Abrir</button></td></tr>`;}).join('')
+    :'<tr><td colspan="7" class="vazio">Nenhum PDI aqui.</td></tr>'}</tbody></table>`;
+}
+TELAS['pdi_abertos']=()=>{
+  const ids=escopoPessoas().map(p=>p.id).concat([eu.id]);
+  const l=db.pdis.filter(p=>p.status!=='concluido'&&ids.includes(p.colaboradorId));
+  return `<div class="tituloTela">Planos de Desenvolvimento Individual</div>
+  <div class="subtitulo">Em andamento no seu escopo · acompanhamento conjunto RH e gestor (POP, etapas 10 e 11)</div>
+  <div class="painel">${tabelaPdi(l)}</div>`;
+};
+TELAS['pdi_concluidos']=()=>{
+  const ids=escopoPessoas().map(p=>p.id).concat([eu.id]);
+  const l=db.pdis.filter(p=>p.status==='concluido'&&ids.includes(p.colaboradorId));
+  return `<div class="tituloTela">PDIs concluídos</div>
+  <div class="subtitulo">Base para o indicador de efetividade dos PDIs (MAN RH 0001, item 9)</div>
+  <div class="painel">${tabelaPdi(l)}</div>`;
+};
+TELAS['pdi_sugeridos']=()=>{
+  const ids=escopoPessoas().map(p=>p.id);
+  const l=db.avaliacoes.filter(a=>ids.includes(a.colaboradorId)&&completa(a)&&a.status!=='rascunho'&&exigePdi(a)&&!db.pdis.some(p=>p.avaliacaoId===a.id));
+  return `<div class="tituloTela">PDIs exigidos e ainda não abertos</div>
+  <div class="subtitulo">Nota final abaixo de 3,00 ou competência avaliada com 1 ou 2</div>
+  <div class="painel">
+    <table><thead><tr><th>Colaborador</th><th>Ciclo</th><th class="num">Nota final</th>
+      <th>Classificação</th><th>Motivo</th><th></th></tr></thead><tbody>
+    ${l.length?l.map(a=>{
+      const baixas=DIMS.reduce((s,d)=>s+(a.notas[d]||[]).filter(x=>x===1||x===2).length,0);
+      const motivo=[]; if(notaFinal(a)<3) motivo.push('nota final abaixo de 3,00');
+      if(baixas) motivo.push(baixas+' competência(s) com nota 1 ou 2');
+      return `<tr><td><b>${esc(pessoa(a.colaboradorId).nome)}</b></td><td>${a.ciclo}º TRI ${a.ano}</td>
+        <td class="num">${num(notaFinal(a))}</td><td>${tagCls(classificar(notaFinal(a)))}</td>
+        <td style="font-size:12.5px;color:var(--dourado)">${motivo.join(' · ')}</td>
+        <td style="text-align:right"><button class="btn mini" onclick="abrirPdi(${a.id})">Abrir PDI</button></td></tr>`;}).join('')
+      :'<tr><td colspan="6" class="vazio">Nenhum PDI pendente de abertura.</td></tr>'}
+    </tbody></table></div>`;
+};
+
+/* ======================================================================
+   13. TELAS — FEEDBACK
+   ====================================================================== */
+function tabelaFb(l,pend){
+  return `<table><thead><tr><th>Colaborador</th><th>Ciclo</th><th class="num">Nota final</th>
+    <th>Homologada em</th>${pend?'<th>Prazo (15 dias)</th>':'<th>Feedback em</th>'}<th></th></tr></thead><tbody>
+  ${l.length?l.map(a=>{
+    const lim=a.dataHomologacao?new Date(new Date(a.dataHomologacao+'T12:00').getTime()+15*864e5):null;
+    const atras=lim && new Date()>lim;
+    return `<tr><td><div class="pilha"><b>${esc(pessoa(a.colaboradorId).nome)}</b><small>${esc(pessoa(a.colaboradorId).setor)}</small></div></td>
+      <td>${a.ciclo}º TRI ${a.ano}</td><td class="num">${num(notaFinal(a))}</td>
+      <td>${dataBR(a.dataHomologacao)}</td>
+      <td style="${pend&&atras?'color:var(--vermelho);font-weight:600':''}">${pend?(lim?lim.toLocaleDateString('pt-BR')+(atras?' · em atraso':''):'—'):dataBR(a.feedback.data)}</td>
+      <td style="text-align:right"><button class="btn ${pend?'':'sec'} mini" onclick="formFb(${a.id})">${pend?'Registrar':'Ver'}</button></td></tr>`;}).join('')
+    :'<tr><td colspan="6" class="vazio">Nada aqui.</td></tr>'}</tbody></table>`;
+}
+TELAS['feedback_pendentes']=()=>{
+  const meus=meusAvaliados(eu).map(c=>c.id);
+  const base = verTudo(eu) ? escopoPessoas().map(p=>p.id) : meus;
+  const l=db.avaliacoes.filter(a=>a.status==='homologada'&&base.includes(a.colaboradorId)&&!(a.feedback&&a.feedback.realizado));
+  return `<div class="tituloTela">Feedbacks pendentes</div>
+  <div class="subtitulo">Prazo do POP RH 0001: até 15 dias após a homologação do resultado</div>
+  <div class="painel">${tabelaFb(l,true)}</div>`;
+};
+TELAS['feedback_registrados']=()=>{
+  const ids=escopoPessoas().map(p=>p.id);
+  const l=db.avaliacoes.filter(a=>a.feedback&&a.feedback.realizado&&ids.includes(a.colaboradorId));
+  return `<div class="tituloTela">Feedbacks registrados</div>
+  <div class="subtitulo">Registro permanece armazenado no sistema</div>
+  <div class="painel">${tabelaFb(l,false)}</div>`;
+};
+function formFb(id){
+  const a=db.avaliacoes.find(x=>x.id===id); ctx.fb=id;
+  if(!a.feedback) a.feedback={realizado:false,data:'',registro:'',metas:''};
+  const e=evolucao(a);
+  const podeEditar = a.avaliadorId===eu.id || eu.perfil==='rh';
+  abrirModal('Feedback · '+esc(pessoa(a.colaboradorId).nome),
+    `<div class="grade g3" style="margin-bottom:14px">
+      ${kpi('Nota final', num(notaFinal(a)), classificar(notaFinal(a)).nome)}
+      ${kpi('Aproveitamento', pct(aproveitamento(a)), pontuacao(a)+'/200')}
+      ${kpi('Evolução', e?num(e.pct,2)+'%':'—', e?e.tendencia:'primeiro ciclo')}
+    </div>
+    <div class="aviso" style="background:var(--sup2);border-color:var(--linha);color:var(--tinta2)">
+      O feedback deve abordar: desempenho apresentado, competências de destaque, competências a desenvolver,
+      evolução em relação ao ciclo anterior, metas para o próximo trimestre e alinhamento do PDI.</div>
+    <label>Data do feedback</label>
+    <input type="date" value="${esc(a.feedback.data||hojeISO())}" ${podeEditar?'':'disabled'} onchange="setFb('data',this.value)">
+    <label>Registro da conversa</label>
+    <textarea style="min-height:110px" ${podeEditar?'':'disabled'} onchange="setFb('registro',this.value)">${esc(a.feedback.registro)}</textarea>
+    <label>Metas para o próximo trimestre</label>
+    <textarea ${podeEditar?'':'disabled'} onchange="setFb('metas',this.value)">${esc(a.feedback.metas)}</textarea>`,
+    podeEditar?`<button class="btn sec" onclick="fecharModal();render()">Fechar</button>
+      <button class="btn" onclick="marcarFb()">${a.feedback.realizado?'Reabrir':'Registrar feedback realizado'}</button>`
+      :'<button class="btn" onclick="fecharModal()">Fechar</button>');
+}
+function setFb(k,v){ const a=db.avaliacoes.find(x=>x.id===ctx.fb); a.feedback[k]=v; a.atualizadoEm=Date.now(); salvar(); }
+function marcarFb(){ const a=db.avaliacoes.find(x=>x.id===ctx.fb);
+  a.feedback.realizado=!a.feedback.realizado;
+  if(a.feedback.realizado && !a.feedback.data) a.feedback.data=hojeISO();
+  a.atualizadoEm=Date.now(); salvar(); fecharModal(); render(); }
+
+/* ======================================================================
+   14. TELAS — RELATÓRIOS
+   ====================================================================== */
+TELAS['relatorios_individual']=()=>{
+  const {ano,ciclo}=db.config;
+  const l=escopoPessoas().map(p=>({p, a:avaliacaoDe(p.id,ano,ciclo)})).filter(x=>x.a&&completa(x.a)&&x.a.status!=='rascunho');
+  return `<div class="tituloTela">Relatórios individuais</div>
+  <div class="subtitulo">Médias, classificação, evolução, pontos fortes, oportunidades e PDI · ${ciclo}º TRI ${ano}</div>
+  <div class="painel">
+    <table><thead><tr><th>Colaborador</th><th>Setor</th><th class="num">Nota final</th>
+      <th>Classificação</th><th>Evolução</th><th>PDI</th><th></th></tr></thead><tbody>
+    ${l.length?l.map(x=>`<tr><td><b>${esc(x.p.nome)}</b></td><td>${esc(x.p.setor)}</td>
+      <td class="num">${num(notaFinal(x.a))}</td><td>${tagCls(classificar(notaFinal(x.a)))}</td>
+      <td>${tend(evolucao(x.a))}</td>
+      <td>${db.pdis.some(p=>p.avaliacaoId===x.a.id)?'<span class="chip">sim</span>':exigePdi(x.a)?'<span class="tag t2">exigido</span>':'—'}</td>
+      <td style="text-align:right"><button class="btn sec mini" onclick="imprimirIndividual(${x.a.id})">Imprimir</button></td></tr>`).join('')
+      :'<tr><td colspan="7" class="vazio">Nenhuma avaliação concluída neste ciclo.</td></tr>'}
+    </tbody></table></div>`;
+};
+TELAS['relatorios_setorial']=()=>`<div class="tituloTela">Relatório setorial</div>
+  <div class="subtitulo">Média do setor, evolução trimestral, competências predominantes e necessidades de treinamento</div>
+  <div class="painel"><h3>Gerar relatório</h3>
+    <p class="dica">O relatório sai com todos os setores do seu escopo de acesso, no ciclo ${db.config.ciclo}º TRI ${db.config.ano}.</p>
+    <button class="btn" onclick="imprimirSetorial()">Imprimir relatório setorial</button></div>
+  ${TELAS['painel_setor']().split('<div class="painel">').slice(1).map(s=>'<div class="painel">'+s).join('')}`;
+TELAS['relatorios_gerencial']=()=>{
+  const gest=db.usuarios.filter(g=>db.usuarios.some(c=>c.gestorId===g.id) && (verTudo(eu)||g.id===eu.id||podeVer(eu,g)));
+  return `<div class="tituloTela">Relatório gerencial</div>
+  <div class="subtitulo">Por gestor: média da equipe, ranking de desempenho, competências críticas e evolução</div>
+  <div class="painel"><table><thead><tr><th>Gestor</th><th class="num">Equipe</th><th></th></tr></thead><tbody>
+    ${gest.length?gest.map(g=>`<tr><td><div class="pilha"><b>${esc(g.nome)}</b><small>${esc(g.cargo)}</small></div></td>
+      <td class="num">${db.usuarios.filter(c=>c.gestorId===g.id&&c.ativo&&!c.vaga).length}</td>
+      <td style="text-align:right"><button class="btn sec mini" onclick="imprimirGerencial(${g.id})">Imprimir</button></td></tr>`).join('')
+      :'<tr><td colspan="3" class="vazio">Nada no seu escopo.</td></tr>'}
+  </tbody></table></div>`;
+};
+TELAS['relatorios_executivo']=()=>`<div class="tituloTela">Relatório executivo</div>
+  <div class="subtitulo">Destinado à Diretoria · desempenho geral, comparativo entre setores, evolução organizacional e indicadores estratégicos</div>
+  <div class="painel"><h3>Gerar relatório executivo</h3>
+    <p class="dica">Consolida o ${db.config.ciclo}º trimestre de ${db.config.ano} com todos os setores e indicadores estratégicos do POP RH 0001.</p>
+    <button class="btn" onclick="imprimirExecutivo()">Imprimir relatório executivo</button></div>
+  ${TELAS['painel_geral']().split('<div class="grade g4"').slice(1).length?'':''}`;
+TELAS['relatorios_rankings']=()=>{
+  const {ano,ciclo}=db.config; const avs=avalsValidas(ano,ciclo);
+  const rank=avs.map(a=>({a,p:pessoa(a.colaboradorId),n:notaFinal(a),e:evolucao(a)})).sort((x,y)=>y.n-x.n);
+  const rankEv=rank.filter(x=>x.e).sort((x,y)=>y.e.pct-x.e.pct);
+  return `<div class="tituloTela">Rankings</div>
+  <div class="subtitulo">${ciclo}º trimestre de ${ano} · escopo conforme seu acesso</div>
+  <div class="grade g2">
+    <div class="painel"><h3>Ranking de desempenho</h3><p class="dica">Por nota final do ciclo</p>
+      <table><tbody>${rank.length?rank.map((x,i)=>`<tr><td style="width:34px;font-family:var(--mono);color:var(--tinta3)">${String(i+1).padStart(2,'0')}</td>
+        <td><div class="pilha"><b>${esc(x.p.nome)}</b><small>${esc(x.p.setor)}</small></div></td>
+        <td class="num" style="font-weight:600">${num(x.n)}</td><td>${tagCls(classificar(x.n))}</td></tr>`).join('')
+        :'<tr><td class="vazio">Sem dados no ciclo.</td></tr>'}</tbody></table></div>
+    <div class="painel"><h3>Ranking de evolução</h3><p class="dica">Variação em relação ao ciclo anterior</p>
+      <table><tbody>${rankEv.length?rankEv.map((x,i)=>`<tr><td style="width:34px;font-family:var(--mono);color:var(--tinta3)">${String(i+1).padStart(2,'0')}</td>
+        <td><div class="pilha"><b>${esc(x.p.nome)}</b><small>${esc(x.p.setor)}</small></div></td>
+        <td class="num">${num(x.e.anterior)} → ${num(x.e.atual)}</td><td>${tend(x.e)}</td></tr>`).join('')
+        :'<tr><td class="vazio">É necessário pelo menos dois ciclos para comparar.</td></tr>'}</tbody></table></div>
+  </div>`;
+};
+
+/* ======================================================================
+   15. IMPRESSÃO
+   ====================================================================== */
+function cabDoc(titulo, sub){
+  return `<div class="cabDoc"><div><img src="${LOGO_COMPLETA}" alt="Contabilizare">
+    <div class="m">${esc(db.config.empresa)}</div><div class="t">${esc(titulo)}</div></div>
+    <div class="d">${esc(sub)}<br>Emitido em ${new Date().toLocaleString('pt-BR')}<br>Por ${esc(eu.nome)}</div></div>`;
+}
+function imprimir(html){ document.getElementById('imp').innerHTML=html; window.print(); }
+function imprimirIndividual(id){
+  const a=db.avaliacoes.find(x=>x.id===id); const c=pessoa(a.colaboradorId); const e=evolucao(a);
+  const pdi=db.pdis.find(p=>p.avaliacaoId===a.id);
+  const dimTab=(d)=>`<h4>${DIM[d].nome} — peso ${DIM[d].peso*100}%</h4>
+    <table><thead><tr><th style="width:24px">Nº</th><th>Competência</th><th style="width:30px" class="num">Nota</th><th style="width:33%">Evidência</th></tr></thead><tbody>
+    ${DIM[d].itens.map((t,i)=>`<tr><td>${String(i+1).padStart(2,'0')}</td><td>${esc(t)}</td>
+      <td class="num">${a.notas[d][i]||'—'}</td><td>${esc(a.evidencias[d][i]||'')}</td></tr>`).join('')}
+    <tr><td colspan="2"><b>Média da dimensão</b></td><td class="num"><b>${num(mediaDim(a,d))}</b></td>
+      <td>${pontosDim(a,d)} de 50 pontos</td></tr></tbody></table>`;
+  imprimir(`<div class="doc">
+    ${cabDoc('Relatório Individual de Avaliação de Desempenho', a.ciclo+'º trimestre de '+a.ano)}
+    <h4>1. Identificação</h4>
+    <table><tbody>
+      <tr><td style="width:26%"><b>Colaborador</b></td><td>${esc(c.nome)}</td><td style="width:22%"><b>Cargo</b></td><td>${esc(c.cargo)}</td></tr>
+      <tr><td><b>Setor</b></td><td>${esc(c.setor)}</td><td><b>Gestor avaliador</b></td><td>${esc(pessoa(a.avaliadorId).nome)}</td></tr>
+      <tr><td><b>Ciclo avaliativo</b></td><td>${a.ciclo}º Trimestre / ${a.ano}</td><td><b>Data da avaliação</b></td><td>${dataBR(a.data)}</td></tr>
+      <tr><td><b>Situação</b></td><td>${a.status==='homologada'?'Homologada em '+dataBR(a.dataHomologacao):a.status==='concluida'?'Aguardando validação do RH':'Rascunho'}</td>
+        <td><b>Tempo de empresa</b></td><td>${c.admissao?dataBR(c.admissao):'—'}</td></tr>
+    </tbody></table>
+    ${DIMS.map(dimTab).join('')}
+    <h4>Resultado da avaliação</h4>
+    <table><tbody>
+      ${DIMS.map(d=>`<tr><td style="width:60%">Média ${DIM[d].curto}</td><td class="num">${num(mediaDim(a,d))}</td><td>peso ${DIM[d].peso*100}%</td></tr>`).join('')}
+      <tr><td><b>Nota final</b></td><td class="num"><b>${num(notaFinal(a))}</b></td><td>média ponderada</td></tr>
+      <tr><td>Pontuação obtida</td><td class="num">${pontuacao(a)}</td><td>de 200 pontos possíveis</td></tr>
+      <tr><td>Percentual de aproveitamento</td><td class="num">${pct(aproveitamento(a))}</td><td>pontuação ÷ 200 × 100</td></tr>
+      <tr><td><b>Classificação final</b></td><td colspan="2"><b>${classificar(notaFinal(a)).nome}</b></td></tr>
+    </tbody></table>
+    <h4>Evolução do colaborador</h4>
+    <table><tbody>
+      <tr><td style="width:50%">Média do trimestre anterior</td><td class="num">${e?num(e.anterior):'—'}</td><td>${e?e.cicloAnt+'º TRI '+e.anoAnt:'primeiro ciclo'}</td></tr>
+      <tr><td>Média do trimestre atual</td><td class="num">${num(notaFinal(a))}</td><td>${a.ciclo}º TRI ${a.ano}</td></tr>
+      <tr><td>Evolução (%)</td><td class="num">${e?num(e.pct,2)+'%':'—'}</td><td>—</td></tr>
+      <tr><td>Classificação anterior</td><td colspan="2">${e?e.clsAnt.nome:'—'}</td></tr>
+      <tr><td>Classificação atual</td><td colspan="2">${classificar(notaFinal(a)).nome}</td></tr>
+      <tr><td><b>Tendência</b></td><td colspan="2"><b>${e?e.tendencia:'—'}</b></td></tr>
+      <tr><td>Média anual (${a.ano})</td><td class="num">${num((mediaAnual(c.id,a.ano)||{}).media)}</td>
+        <td>${(mediaAnual(c.id,a.ano)||{ciclos:0}).ciclos} de 4 ciclos</td></tr>
+    </tbody></table>
+    <h4>Pontos fortes</h4><p>${esc(a.pontosFortes)||'—'}</p>
+    <h4>Oportunidades de desenvolvimento</h4><p>${esc(a.oportunidades)||'—'}</p>
+    <h4>Observações do gestor</h4><p>${esc(a.observacoes)||'—'}</p>
+    <h4>Plano de Desenvolvimento Individual (PDI)</h4>
+    ${pdi&&pdi.itens.length?`<table><thead><tr><th>Competência</th><th>Objetivo</th><th>Ação</th><th>Responsável</th>
+      <th>Prazo</th><th>Indicador</th><th>Situação</th></tr></thead><tbody>
+      ${pdi.itens.map(i=>`<tr><td>${esc(i.competencia)}</td><td>${esc(i.objetivo)}</td><td>${esc(i.acao)}</td>
+        <td>${esc(i.responsavel)}</td><td>${dataBR(i.prazo)}</td><td>${esc(i.indicador)}</td><td>${esc(i.status)}</td></tr>`).join('')}
+      </tbody></table>`:`<p>${exigePdi(a)?'PDI obrigatório — ainda não registrado.':'Não aplicável neste ciclo.'}</p>`}
+    ${a.feedback&&a.feedback.realizado?`<h4>Registro do feedback — ${dataBR(a.feedback.data)}</h4>
+      <p>${esc(a.feedback.registro)||'—'}</p><p><b>Metas para o próximo trimestre:</b> ${esc(a.feedback.metas)||'—'}</p>`:''}
+    <div class="ass"><div>Gestor — ${esc(pessoa(a.avaliadorId).nome)}<br>Data: ___/___/______</div>
+      <div>Colaborador — ${esc(c.nome)}<br>Data: ___/___/______</div>
+      <div>Recursos Humanos<br>Data: ___/___/______</div></div>
+  </div>`);
+}
+function imprimirSetorial(){
+  const {ano,ciclo}=db.config;
+  const setores=[...new Set(elegiveis().map(p=>p.setor))].sort();
+  imprimir(`<div class="doc">${cabDoc('Relatório Setorial de Desempenho', ciclo+'º trimestre de '+ano)}
+  ${setores.map(s=>{
+    const ps=elegiveis().filter(p=>p.setor===s);
+    const av=avalsValidas(ano,ciclo).filter(a=>ps.some(p=>p.id===a.colaboradorId));
+    const n=av.map(notaFinal); const m=n.length?n.reduce((a,b)=>a+b,0)/n.length:null;
+    let comp=[]; DIMS.forEach(d=>DIM[d].itens.forEach((t,i)=>{
+      const v=av.map(a=>a.notas[d][i]).filter(x=>x>0);
+      if(v.length) comp.push({t:DIM[d].curto+' '+String(i+1).padStart(2,'0')+' — '+t, m:v.reduce((s,x)=>s+x,0)/v.length});}));
+    comp.sort((a,b)=>a.m-b.m);
+    return `<h4>Setor: ${esc(s)}</h4>
+    <table><tbody><tr><td style="width:34%">Pessoas no setor</td><td class="num">${ps.length}</td>
+      <td style="width:34%">Avaliações concluídas</td><td class="num">${av.length}</td></tr>
+      <tr><td>Média do setor</td><td class="num"><b>${num(m)}</b></td><td>Classificação</td><td>${m?classificar(m).nome:'—'}</td></tr></tbody></table>
+    <table><thead><tr><th>Colaborador</th><th>Cargo</th><th class="num">Nota</th><th>Classificação</th><th class="num">Evolução</th></tr></thead><tbody>
+    ${ps.map(p=>{const a=av.find(x=>x.colaboradorId===p.id); const e=a?evolucao(a):null;
+      return `<tr><td>${esc(p.nome)}</td><td>${esc(p.cargo)}</td><td class="num">${a?num(notaFinal(a)):'—'}</td>
+        <td>${a?classificar(notaFinal(a)).nome:'não avaliado'}</td><td class="num">${e?num(e.pct,2)+'%':'—'}</td></tr>`;}).join('')}
+    </tbody></table>
+    ${comp.length?`<p style="margin-top:6px"><b>Necessidades de treinamento (menores médias):</b> ${comp.slice(0,3).map(c=>esc(c.t)+' ('+num(c.m)+')').join(' · ')}</p>
+      <p><b>Competências predominantes:</b> ${comp.slice(-3).reverse().map(c=>esc(c.t)+' ('+num(c.m)+')').join(' · ')}</p>`:''}
+    <div style="height:10px"></div>`;}).join('')}
+  </div>`);
+}
+function imprimirGerencial(gid){
+  const g=pessoa(gid); const {ano,ciclo}=db.config;
+  const eq=db.usuarios.filter(c=>c.gestorId===gid&&c.ativo&&!c.vaga);
+  const av=db.avaliacoes.filter(a=>a.ano===ano&&a.ciclo===ciclo&&eq.some(c=>c.id===a.colaboradorId)&&completa(a)&&a.status!=='rascunho');
+  const n=av.map(notaFinal); const m=n.length?n.reduce((a,b)=>a+b,0)/n.length:null;
+  let comp=[]; DIMS.forEach(d=>DIM[d].itens.forEach((t,i)=>{
+    const v=av.map(a=>a.notas[d][i]).filter(x=>x>0);
+    if(v.length) comp.push({t:DIM[d].curto+' '+String(i+1).padStart(2,'0')+' — '+t, m:v.reduce((s,x)=>s+x,0)/v.length});}));
+  comp.sort((a,b)=>a.m-b.m);
+  const rank=av.map(a=>({p:pessoa(a.colaboradorId),n:notaFinal(a),e:evolucao(a)})).sort((x,y)=>y.n-x.n);
+  imprimir(`<div class="doc">${cabDoc('Relatório Gerencial — '+g.nome, ciclo+'º trimestre de '+ano)}
+    <table><tbody><tr><td style="width:34%">Gestor</td><td>${esc(g.nome)} — ${esc(g.cargo)}</td></tr>
+      <tr><td>Equipe</td><td>${eq.length} pessoa(s)</td></tr>
+      <tr><td>Avaliações concluídas</td><td>${av.length} (${eq.length?Math.round(av.length/eq.length*100):0}%)</td></tr>
+      <tr><td>Média da equipe</td><td><b>${num(m)}</b> — ${m?classificar(m).nome:'—'}</td></tr></tbody></table>
+    <h4>Ranking de desempenho da equipe</h4>
+    <table><thead><tr><th style="width:24px">#</th><th>Colaborador</th><th>Cargo</th><th class="num">Nota</th>
+      <th>Classificação</th><th class="num">Evolução</th></tr></thead><tbody>
+    ${rank.length?rank.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.p.nome)}</td><td>${esc(x.p.cargo)}</td>
+      <td class="num">${num(x.n)}</td><td>${classificar(x.n).nome}</td><td class="num">${x.e?num(x.e.pct,2)+'%':'—'}</td></tr>`).join('')
+      :'<tr><td colspan="6">Sem avaliações concluídas.</td></tr>'}
+    </tbody></table>
+    <h4>Competências críticas da equipe</h4>
+    ${comp.length?`<table><thead><tr><th>Competência</th><th class="num">Média</th></tr></thead><tbody>
+      ${comp.slice(0,8).map(c=>`<tr><td>${esc(c.t)}</td><td class="num">${num(c.m)}</td></tr>`).join('')}</tbody></table>`:'<p>Sem dados.</p>'}
+    <h4>Não avaliados no ciclo</h4>
+    <p>${eq.filter(c=>!av.some(a=>a.colaboradorId===c.id)).map(c=>esc(c.nome)).join(' · ')||'Nenhum — equipe 100% avaliada.'}</p>
+  </div>`);
+}
+function imprimirExecutivo(){
+  const {ano,ciclo}=db.config;
+  const eleg=elegiveis(), avs=avalsValidas(ano,ciclo);
+  const n=avs.map(notaFinal); const m=n.length?n.reduce((a,b)=>a+b,0)/n.length:null;
+  const setores=[...new Set(eleg.map(p=>p.setor))].sort();
+  const series=[1,2,3,4].map(c=>{const a=db.avaliacoes.filter(x=>x.ano===ano&&x.ciclo===c&&completa(x)&&x.status!=='rascunho'&&eleg.some(p=>p.id===x.colaboradorId));
+    const v=a.map(notaFinal); return v.length?v.reduce((s,x)=>s+x,0)/v.length:null;});
+  const val=series.filter(x=>x!=null);
+  let comp=[]; DIMS.forEach(d=>DIM[d].itens.forEach((t,i)=>{
+    const v=avs.map(a=>a.notas[d][i]).filter(x=>x>0);
+    if(v.length) comp.push({t:DIM[d].curto+' '+String(i+1).padStart(2,'0')+' — '+t, m:v.reduce((s,x)=>s+x,0)/v.length});}));
+  comp.sort((a,b)=>a.m-b.m);
+  const pdis=db.pdis.filter(p=>p.ano===ano);
+  imprimir(`<div class="doc">${cabDoc('Relatório Executivo de Desempenho — Diretoria', ciclo+'º trimestre de '+ano)}
+    <h4>Desempenho geral</h4>
+    <table><tbody>
+      <tr><td style="width:40%">Colaboradores elegíveis</td><td class="num">${eleg.length}</td>
+        <td style="width:26%">Avaliações concluídas</td><td class="num">${avs.length} (${eleg.length?Math.round(avs.length/eleg.length*100):0}%)</td></tr>
+      <tr><td>Média geral da empresa</td><td class="num"><b>${num(m)}</b></td><td>Classificação</td><td>${m?classificar(m).nome:'—'}</td></tr>
+      <tr><td>Percentual médio de aproveitamento</td><td class="num">${pct(avs.length?avs.reduce((s,a)=>s+aproveitamento(a),0)/avs.length:null)}</td>
+        <td>Feedbacks realizados</td><td class="num">${avs.filter(a=>a.feedback&&a.feedback.realizado).length}</td></tr>
+    </tbody></table>
+    <h4>Indicadores estratégicos</h4>
+    <table><tbody>
+      <tr><td style="width:50%">Índice de alto desempenho (≥ 3,80)</td><td class="num">${n.length?Math.round(n.filter(x=>x>=3.8).length/n.length*100)+'%':'—'}</td>
+        <td>${n.filter(x=>x>=3.8).length} pessoa(s)</td></tr>
+      <tr><td>Índice de excelência (≥ 4,50)</td><td class="num">${n.length?Math.round(n.filter(x=>x>=4.5).length/n.length*100)+'%':'—'}</td>
+        <td>${n.filter(x=>x>=4.5).length} pessoa(s)</td></tr>
+      <tr><td>Abaixo de 3,00 — PDI obrigatório</td><td class="num">${n.filter(x=>x<3).length}</td><td>—</td></tr>
+      <tr><td>Evolução organizacional no ano</td><td class="num">${val.length>=2?num(((val[val.length-1]-val[0])/val[0])*100,2)+'%':'—'}</td>
+        <td>${val.length} ciclo(s) apurado(s)</td></tr>
+      <tr><td>PDIs elaborados / concluídos</td><td class="num">${pdis.length} / ${pdis.filter(p=>p.status==='concluido').length}</td>
+        <td>efetividade ${pdis.length?Math.round(pdis.filter(p=>p.status==='concluido').length/pdis.length*100)+'%':'—'}</td></tr>
+    </tbody></table>
+    <h4>Comparativo entre setores</h4>
+    <table><thead><tr><th>Setor</th><th class="num">Pessoas</th><th class="num">Avaliadas</th><th class="num">Média</th><th>Classificação</th></tr></thead><tbody>
+    ${setores.map(s=>{const ps=eleg.filter(p=>p.setor===s);
+      const av=avs.filter(a=>ps.some(p=>p.id===a.colaboradorId)); const v=av.map(notaFinal);
+      const md=v.length?v.reduce((a,b)=>a+b,0)/v.length:null;
+      return `<tr><td>${esc(s)}</td><td class="num">${ps.length}</td><td class="num">${av.length}</td>
+        <td class="num">${num(md)}</td><td>${md?classificar(md).nome:'—'}</td></tr>`;}).join('')}
+    </tbody></table>
+    <h4>Evolução organizacional</h4>
+    <table><thead><tr><th>Ciclo</th><th class="num">Média</th><th>Classificação</th></tr></thead><tbody>
+      ${[1,2,3,4].map((c,i)=>`<tr><td>${c}º Trimestre</td><td class="num">${num(series[i])}</td>
+        <td>${series[i]?classificar(series[i]).nome:'—'}</td></tr>`).join('')}
+      <tr><td><b>Média anual</b></td><td class="num"><b>${num(val.length?val.reduce((a,b)=>a+b,0)/val.length:null)}</b></td><td>—</td></tr>
+    </tbody></table>
+    <h4>Recomendações</h4>
+    <p>Prioridade de treinamento nas competências de menor média: ${comp.slice(0,3).map(c=>esc(c.t)+' ('+num(c.m)+')').join(' · ')||'—'}.</p>
+    <p>Candidatos a reconhecimento e sucessão (média ≥ 4,50): ${avs.filter(a=>notaFinal(a)>=4.5).map(a=>esc(pessoa(a.colaboradorId).nome)).join(' · ')||'nenhum neste ciclo'}.</p>
+    <p>Acompanhamento imediato (média < 3,00): ${avs.filter(a=>notaFinal(a)<3).map(a=>esc(pessoa(a.colaboradorId).nome)).join(' · ')||'nenhum neste ciclo'}.</p>
+  </div>`);
+}
+
+/* ======================================================================
+   16. CONFIGURAÇÕES (RH)
+   ====================================================================== */
+TELAS['config_usuarios']=()=>{
+  const setores=[...new Set(db.usuarios.map(u=>u.setor))].sort();
+  return `<div class="tituloTela">Usuários e acessos</div>
+  <div class="subtitulo">O acesso de cada pessoa é derivado da hierarquia: quem é o gestor e, para gestores, quais setores ele enxerga por completo</div>
+  <div class="painel">
+    <div class="barraAcoes"><h3 class="cresce">Pessoas cadastradas</h3>
+      <button class="btn mini" onclick="editarUsuario(0)">+ Novo usuário</button></div>
+    <table><thead><tr><th>Nome</th><th>Cargo</th><th>Setor</th><th>Perfil</th><th>Avaliado por</th>
+      <th>Login</th><th>Senha</th><th>Enxerga</th><th></th></tr></thead><tbody>
+    ${db.usuarios.map(u=>`<tr style="${u.ativo?'':'opacity:.5'}">
+      <td><div class="pilha"><b>${esc(u.nome)}</b>${u.vaga?'<small style="color:var(--dourado)">vaga em aberto</small>':u.ativo?'':'<small>inativo</small>'}</div></td>
+      <td>${esc(u.cargo)}</td><td>${esc(u.setor)}</td>
+      <td><span class="chip">${rotuloPerfil(u.perfil)}</span></td>
+      <td style="font-size:12.5px">${u.gestorId?esc(pessoa(u.gestorId).nome):'—'}</td>
+      <td style="font-family:var(--mono);font-size:12px">${esc(u.login)||'—'}</td>
+      <td>${u.senha?'<span class="chip">definida</span>':'<span class="tag tn">sem acesso</span>'}</td>
+      <td style="font-size:11.5px;color:var(--tinta2)">${
+        u.perfil==='rh'||u.perfil==='ceo' ? 'toda a empresa'
+        : u.perfil==='gestor' ? (u.escopo.join(', ')||'—')+' + sua equipe direta'
+        : u.perfil==='coordenador' ? 'apenas sua equipe' : 'não acessa o sistema'}</td>
+      <td style="text-align:right;white-space:nowrap">
+        <button class="btn sec mini" onclick="editarUsuario(${u.id})">Editar</button>
+        <button class="btn sec mini" onclick="resetSenha(${u.id})">Senha</button></td></tr>`).join('')}
+    </tbody></table>
+  </div>
+  <div class="painel"><h3>Mapa de avaliação</h3>
+    <p class="dica">Quem avalia quem, conforme a hierarquia cadastrada.</p>
+    ${db.usuarios.filter(g=>db.usuarios.some(c=>c.gestorId===g.id)).map(g=>`
+      <div style="padding:10px 0;border-bottom:1px solid var(--linha2)">
+        <b>${esc(g.nome)}</b> <span style="color:var(--tinta3);font-size:12px">— ${esc(g.cargo)}</span>
+        <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
+        ${db.usuarios.filter(c=>c.gestorId===g.id).map(c=>`<span class="chip">${esc(c.nome)}${c.vaga?' (vaga)':''}</span>`).join('')}</div>
+      </div>`).join('')}
+  </div>`;
+};
+function editarUsuario(id){
+  const u = id? pessoa(id) : {id:0,nome:'',login:'',senha:'',perfil:'colaborador',cargo:'',setor:'',gestorId:null,escopo:[],ativo:true,admissao:'',vaga:false};
+  const setores=[...new Set(db.usuarios.map(x=>x.setor))].sort();
+  ctx.usr=id;
+  abrirModal(id?'Editar '+esc(u.nome):'Novo usuário',
+    `<div class="grade g2">
+      <div><label>Nome</label><input id="uNome" value="${esc(u.nome)}"></div>
+      <div><label>Cargo</label><input id="uCargo" value="${esc(u.cargo)}"></div>
+    </div>
+    <div class="grade g2">
+      <div><label>Setor</label><input id="uSetor" list="lSetores" value="${esc(u.setor)}">
+        <datalist id="lSetores">${setores.map(s=>`<option value="${esc(s)}">`).join('')}</datalist></div>
+      <div><label>Perfil de acesso</label><select id="uPerfil" onchange="mostrarEscopo()">
+        ${['colaborador','coordenador','gestor','rh','ceo'].map(p=>`<option value="${p}" ${u.perfil===p?'selected':''}>${rotuloPerfil(p)}</option>`).join('')}
+      </select></div>
+    </div>
+    <div class="grade g2">
+      <div><label>Avaliado por (gestor imediato)</label><select id="uGestor">
+        <option value="">— ninguém</option>
+        ${db.usuarios.filter(g=>g.id!==id).map(g=>`<option value="${g.id}" ${u.gestorId===g.id?'selected':''}>${esc(g.nome)} — ${esc(g.cargo)}</option>`).join('')}
+      </select></div>
+      <div><label>Data de admissão</label><input id="uAdm" type="date" value="${esc(u.admissao)}"></div>
+    </div>
+    <div id="boxEscopo" style="display:${u.perfil==='gestor'?'block':'none'}">
+      <label>Setores que este gestor enxerga por completo</label>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;padding:8px 0">
+        ${setores.map(s=>`<label style="display:flex;gap:6px;align-items:center;font-weight:500;color:var(--tinta);margin:0">
+          <input type="checkbox" class="escSet" value="${esc(s)}" ${u.escopo.includes(s)?'checked':''} style="width:auto">${esc(s)}</label>`).join('')}
+      </div>
+    </div>
+    <div class="grade g2">
+      <div><label>Login</label><input id="uLogin" value="${esc(u.login)}" placeholder="nome.sobrenome"></div>
+      <div><label>Situação</label><select id="uAtivo">
+        <option value="1" ${u.ativo?'selected':''}>Ativo</option>
+        <option value="0" ${u.ativo?'':'selected'}>Inativo / vaga em aberto</option></select></div>
+    </div>
+    <p style="font-size:12px;color:var(--tinta3);margin-top:10px">Deixe o login em branco para quem não deve acessar o sistema.
+      Colaboradores avaliados não têm acesso nesta versão — só CEO, gestores, coordenadores e RH.</p>`,
+    `<button class="btn sec" onclick="fecharModal()">Cancelar</button>
+     <button class="btn" onclick="salvarUsuario()">Salvar</button>`);
+}
+function mostrarEscopo(){ document.getElementById('boxEscopo').style.display =
+  document.getElementById('uPerfil').value==='gestor'?'block':'none'; }
+function salvarUsuario(){
+  const id=ctx.usr;
+  const dados={
+    nome:document.getElementById('uNome').value.trim(),
+    cargo:document.getElementById('uCargo').value.trim(),
+    setor:document.getElementById('uSetor').value.trim(),
+    perfil:document.getElementById('uPerfil').value,
+    gestorId:document.getElementById('uGestor').value?+document.getElementById('uGestor').value:null,
+    admissao:document.getElementById('uAdm').value,
+    login:document.getElementById('uLogin').value.trim().toLowerCase(),
+    ativo:document.getElementById('uAtivo').value==='1',
+    escopo:[...document.querySelectorAll('.escSet:checked')].map(c=>c.value)
+  };
+  if(!dados.nome){ alerta('Falta o nome','Informe o nome do colaborador para salvar.'); return; }
+  if(dados.login && db.usuarios.some(u=>u.id!==id && (u.login||'').toLowerCase()===dados.login)){
+    alerta('Login em uso','Já existe outro usuário com esse login. Escolha outro.'); return; }
+  if(id){ Object.assign(pessoa(id), dados, {atualizadoEm:Date.now()}); }
+  else { db.seqUsuario++; db.usuarios.push(Object.assign({id:db.seqUsuario, senha:'', vaga:false, atualizadoEm:Date.now()}, dados)); }
+  salvar(); fecharModal(); render();
+}
+function resetSenha(id){
+  const u=pessoa(id); ctx.usr=id;
+  abrirModal('Senha de '+esc(u.nome),
+    `<p style="font-size:13px;color:var(--tinta2);margin-bottom:12px">Login: <b style="font-family:var(--mono)">${esc(u.login)||'— sem login'}</b></p>
+    ${u.login?`<label>Nova senha</label><input id="sNova" type="text" placeholder="mínimo 6 caracteres">
+      <p style="font-size:12px;color:var(--tinta3);margin-top:10px">A senha fica visível para o RH neste modelo.
+        Oriente a pessoa a trocá-la no primeiro acesso, em Configurações.</p>`
+      :'<div class="aviso">Esta pessoa não tem login cadastrado. Edite o usuário e defina um login antes de criar a senha.</div>'}`,
+    u.login?`<button class="btn sec" onclick="fecharModal()">Cancelar</button>
+      <button class="btn perigo" onclick="tirarSenha()">Remover acesso</button>
+      <button class="btn" onclick="gravarSenha()">Salvar senha</button>`
+      :'<button class="btn" onclick="fecharModal()">Fechar</button>');
+}
+function gravarSenha(){
+  const s=document.getElementById('sNova').value;
+  if(s.length<6){ alerta('Senha curta','Use pelo menos 6 caracteres.'); return; }
+  const u=pessoa(ctx.usr); u.senha=s; u.atualizadoEm=Date.now(); salvar(); fecharModal(); render();
+}
+function tirarSenha(){ const u=pessoa(ctx.usr); u.senha=''; u.atualizadoEm=Date.now(); salvar(); fecharModal(); render(); }
+
+TELAS['config_ciclo']=()=>{
+  const {ano,ciclo}=db.config;
+  const etapas=[['Planejamento do ciclo','RH'],['Comunicação aos gestores','RH'],['Aplicação das avaliações','Gestores'],
+    ['Validação das avaliações','RH'],['Consolidação dos resultados','RH'],['Cálculo dos indicadores','Sistema / RH'],
+    ['Feedback aos colaboradores','Gestores'],['Elaboração dos PDIs','RH + Gestores'],
+    ['Acompanhamento das ações','RH + Gestores'],['Encerramento do ciclo','RH']];
+  const eleg=elegiveis(), avs=avalsValidas(ano,ciclo);
+  return `<div class="tituloTela">Ciclo avaliativo</div>
+  <div class="subtitulo">Quatro ciclos por ano · o ciclo definido aqui é o que todos veem ao entrar</div>
+  <div class="painel"><h3>Ciclo em vigor</h3>
+    <p class="dica">Ao avançar o ciclo, as avaliações anteriores continuam guardadas e passam a alimentar o comparativo de evolução.</p>
+    <div class="grade g3">
+      <div><label>Ano</label><input type="number" value="${ano}" onchange="db.config.ano=+this.value;salvar();render()"></div>
+      <div><label>Trimestre</label><select onchange="db.config.ciclo=+this.value;salvar();render()">
+        ${[1,2,3,4].map(c=>`<option value="${c}" ${ciclo===c?'selected':''}>${c}º Trimestre</option>`).join('')}</select></div>
+      <div><label>Razão social nos relatórios</label><input value="${esc(db.config.empresa)}" onchange="db.config.empresa=this.value;salvar()"></div>
+    </div>
+  </div>
+  <div class="painel"><h3>Andamento do ciclo</h3>
+    <div class="grade g4">
+      ${kpi('Elegíveis', eleg.length,'Ativos, sem vaga em aberto')}
+      ${kpi('Concluídas', avs.length, eleg.length?Math.round(avs.length/eleg.length*100)+'% do ciclo':'—')}
+      ${kpi('Aguardando RH', db.avaliacoes.filter(a=>a.ano===ano&&a.ciclo===ciclo&&a.status==='concluida').length,'Para validar e homologar')}
+      ${kpi('Homologadas', db.avaliacoes.filter(a=>a.ano===ano&&a.ciclo===ciclo&&a.status==='homologada').length,'Compõem os relatórios oficiais')}
+    </div>
+  </div>
+  <div class="painel"><h3>Cronograma do ciclo (MAN RH 0001, item 4)</h3>
+    <table><thead><tr><th style="width:36px">#</th><th>Etapa</th><th>Responsável</th></tr></thead><tbody>
+    ${etapas.map((e,i)=>`<tr><td style="font-family:var(--mono);color:var(--tinta3)">${String(i+1).padStart(2,'0')}</td>
+      <td>${e[0]}</td><td><span class="chip">${e[1]}</span></td></tr>`).join('')}
+    </tbody></table></div>`;
+};
+
+TELAS['config_nuvem']=()=>{
+  const n=db.config.nuvem;
+  return `<div class="tituloTela">Nuvem e dados</div>
+  <div class="subtitulo">Sem a nuvem ligada, cada pessoa enxerga apenas o que ela mesma lançou no próprio navegador</div>
+  <div class="painel"><h3>Conexão Supabase</h3>
+    <p class="dica">É o que faz gestores, coordenadores, CEO e RH compartilharem os mesmos dados.</p>
+    <div class="grade g2">
+      <div><label>URL do projeto</label><input id="nUrl" value="${esc(n.url)}" placeholder="https://xxxx.supabase.co"></div>
+      <div><label>Chave pública (publishable / anon)</label><input id="nChave" value="${esc(n.chave)}" placeholder="sb_publishable_... ou eyJhbGciOi..."></div>
+    </div>
+    <div class="grade g2">
+      <div><label>Tabela</label><input id="nTab" value="${esc(n.tabela)}"></div>
+      <div><label>Situação</label><select id="nLig">
+        <option value="1" ${n.ligada?'selected':''}>Ligada</option>
+        <option value="0" ${n.ligada?'':'selected'}>Desligada (só este navegador)</option></select></div>
+    </div>
+    <div class="barraAcoes" style="margin-top:14px">
+      <button class="btn" onclick="salvarNuvem()">Salvar e conectar</button>
+      <button class="btn sec" onclick="testarNuvem()">Testar conexão</button>
+      <button class="btn sec" onclick="puxar().then(r=>{render();alerta(r?'Dados atualizados':'Sem conexão', r?'Trouxemos o que estava na nuvem.':'Não foi possível ler a nuvem agora.')})">Puxar da nuvem agora</button>
+    </div>
+  </div>
+  <div class="painel"><h3>Como preparar a tabela no Supabase</h3>
+    <p class="dica">Rode uma vez no SQL Editor do seu projeto.</p>
+    <pre style="background:var(--sup2);border:1px solid var(--linha);border-radius:8px;padding:12px;font-family:var(--mono);font-size:11.5px;overflow:auto">create table if not exists ${esc(n.tabela||'avaliacao_desempenho')} (
+  id text primary key,
+  dados jsonb,
+  atualizado_em timestamptz default now()
+);
+alter table ${esc(n.tabela||'avaliacao_desempenho')} enable row level security;
+create policy "acesso app" on ${esc(n.tabela||'avaliacao_desempenho')}
+  for all using (true) with check (true);</pre>
+    <p style="font-size:12px;color:var(--tinta2);margin-top:10px">Em <b>Project Settings → API Keys</b>. Projetos criados a partir de novembro de 2025 têm a chave
+      <b>publishable</b> (<span style="font-family:var(--mono)">sb_publishable_…</span>); projetos antigos têm a <b>anon</b>
+      (<span style="font-family:var(--mono)">eyJ…</span>). As duas servem — nunca use a <b>secret</b> nem a <b>service_role</b>.</p>
+    <p style="font-size:12px;color:var(--tinta2);margin-top:8px">A chave pública fica dentro do arquivo HTML. Por isso, publique o
+      sistema em endereço restrito e trate as senhas daqui como controle de visão entre as pessoas da empresa, não como
+      segurança de nível bancário. Os dados de avaliação são confidenciais (MAN RH 0001, item 12).</p>
+  </div>
+  <div class="painel"><h3>Cópia de segurança</h3>
+    <p class="dica">Baixe um arquivo com tudo: usuários, avaliações e PDIs.</p>
+    <div class="barraAcoes">
+      <button class="btn sec" onclick="baixarBackup()">Baixar cópia (.json)</button>
+      <label class="btn sec mini" style="margin:0;cursor:pointer">Restaurar cópia
+        <input type="file" accept=".json" style="display:none" onchange="restaurarBackup(this)"></label>
+    </div>
+  </div>`;
+};
+function salvarNuvem(){
+  db.config.nuvem={url:document.getElementById('nUrl').value.trim(), chave:document.getElementById('nChave').value.trim(),
+    tabela:document.getElementById('nTab').value.trim()||'avaliacao_desempenho', ligada:document.getElementById('nLig').value==='1'};
+  salvar(false); localStorage.setItem(CHAVE, JSON.stringify(db));
+  iniciarPoll(); push(); alerta('Conexão salva','Se os dados estiverem certos, o indicador no topo vai mostrar "na nuvem".'); render();
+}
+async function testarNuvem(){
+  try{ await nuvemReq('GET','?select=id&limit=1'); alerta('Conexão funcionando','O Supabase respondeu. Pode ligar a sincronização.'); }
+  catch(e){ alerta('Não conectou','O Supabase recusou a chamada.<br><br><span style="font-family:var(--mono);font-size:11px">'+esc(String(e.message).slice(0,300))+'</span>'); }
+}
+function baixarBackup(){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(db,null,2)],{type:'application/json'}));
+  a.download='avaliacao-desempenho-'+hojeISO()+'.json'; a.click();
+}
+function restaurarBackup(inp){
+  const f=inp.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{ const d=JSON.parse(r.result); if(!d.usuarios) throw 0;
+    db=d; validar(); salvar(); alerta('Cópia restaurada','Os dados do arquivo substituíram o que estava aqui.'); render();
+  }catch(e){ alerta('Arquivo inválido','Este arquivo não é uma cópia do sistema.'); } };
+  r.readAsText(f);
+}
+
+TELAS['config_metodologia']=()=>`<div class="tituloTela">Metodologia aplicada</div>
+  <div class="subtitulo">O que o sistema calcula e de onde vem cada regra</div>
+  <div class="painel"><h3>Escala de avaliação</h3>
+    <table><thead><tr><th class="num">Nota</th><th>Nível</th><th>Significado</th></tr></thead><tbody>
+    ${ESCALA.map(e=>`<tr><td class="num"><b>${e.n}</b></td><td><b>${e.nome}</b></td><td>${e.desc}</td></tr>`).join('')}
+    </tbody></table></div>
+  <div class="painel"><h3>Dimensões e pesos</h3>
+    <table><thead><tr><th>Dimensão</th><th class="num">Competências</th><th class="num">Peso</th><th class="num">Pontos possíveis</th></tr></thead><tbody>
+    ${DIMS.map(d=>`<tr><td><b>${DIM[d].nome}</b></td><td class="num">10</td><td class="num">${DIM[d].peso*100}%</td><td class="num">10 a 50</td></tr>`).join('')}
+    <tr><td><b>Total</b></td><td class="num">40</td><td class="num">100%</td><td class="num">40 a 200</td></tr>
+    </tbody></table></div>
+  <div class="painel"><h3>Faixas de classificação</h3>
+    <table><thead><tr><th>Média final</th><th>Classificação</th><th>Situação</th></tr></thead><tbody>
+    ${CLASSES.map(c=>`<tr><td class="num" style="text-align:left;font-family:var(--mono)">${num(c.min)} a ${num(c.max)}</td>
+      <td>${tagCls(c)}</td><td style="font-size:12.5px">${
+        {1:'Necessita intervenção imediata e PDI obrigatório.',2:'Necessita desenvolvimento e acompanhamento.',
+         3:'Atende às expectativas da função.',4:'Supera frequentemente as expectativas.',
+         5:'Referência para a organização.'}[c.i]}</td></tr>`).join('')}
+    </tbody></table></div>
+  <div class="painel"><h3>Fórmulas processadas automaticamente</h3>
+    <table><tbody>
+      <tr><td style="width:36%"><b>Média da dimensão</b></td><td style="font-family:var(--mono);font-size:12px">soma das 10 notas ÷ 10</td></tr>
+      <tr><td><b>Nota final</b></td><td style="font-family:var(--mono);font-size:12px">(Org × 0,25) + (Téc × 0,35) + (Comp × 0,20) + (Qual × 0,20)</td></tr>
+      <tr><td><b>Pontuação geral</b></td><td style="font-family:var(--mono);font-size:12px">soma das 40 notas — mínimo 40, máximo 200</td></tr>
+      <tr><td><b>Aproveitamento</b></td><td style="font-family:var(--mono);font-size:12px">(pontuação ÷ 200) × 100</td></tr>
+      <tr><td><b>Evolução</b></td><td style="font-family:var(--mono);font-size:12px">((nota atual − nota anterior) ÷ nota anterior) × 100</td></tr>
+      <tr><td><b>Média anual</b></td><td style="font-family:var(--mono);font-size:12px">soma das notas dos ciclos ÷ quantidade de ciclos concluídos</td></tr>
+      <tr><td><b>Tendência</b></td><td style="font-size:12.5px">Evolução se subiu · Estabilidade se variação até 0,5% · Declínio se caiu</td></tr>
+      <tr><td><b>PDI obrigatório</b></td><td style="font-size:12.5px">nota final abaixo de 3,00 ou qualquer competência com nota 1 ou 2</td></tr>
+    </tbody></table></div>
+  <div class="painel"><h3>Regras de acesso configuradas</h3>
+    <table><thead><tr><th>Perfil</th><th>Enxerga</th><th>Avalia</th></tr></thead><tbody>
+      <tr><td><b>Recursos Humanos</b></td><td>Toda a empresa · valida e homologa os ciclos</td><td>Quem estiver sob sua gestão direta</td></tr>
+      <tr><td><b>CEO</b></td><td>Toda a empresa</td><td>Os gestores</td></tr>
+      <tr><td><b>Gestor</b></td><td>Todos os setores marcados no seu escopo, por completo</td><td>Sua equipe direta</td></tr>
+      <tr><td><b>Coordenador</b></td><td>Apenas a própria equipe</td><td>Sua equipe direta</td></tr>
+      <tr><td><b>Colaborador</b></td><td>Não acessa o sistema nesta versão</td><td>—</td></tr>
+    </tbody></table></div>`;
+
+/* ======================================================================
+   17. PARTIDA
+   ====================================================================== */
+carregar();
+document.getElementById('logoLogin').src=LOGO_COMPLETA;
+document.getElementById('logoTopo').src=LOGO_BRANCA;
+document.getElementById('lgSenha').addEventListener('keydown',e=>{ if(e.key==='Enter') entrar(); });
+document.getElementById('lgUser').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('lgSenha').focus(); });
+(async()=>{
+  if(nuvemLigada()){ await puxar(); }
+  const s=sessionStorage.getItem('ad_eu');
+  if(s){ const u=db.usuarios.find(x=>x.id==s&&x.ativo); if(u){ eu=u;
+    document.getElementById('login').style.display='none';
+    document.getElementById('app').style.display='block'; iniciarPoll(); render(); } }
+})();
+</script>
+</body>
+</html>
